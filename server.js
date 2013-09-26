@@ -17,10 +17,10 @@ app.get('/surf', function (req, res) {
   res.sendfile(__dirname + '/public/surf.html');
 });
 
-/*suiteio.configure(function () { 
+suiteio.configure(function () { 
   suiteio.set("transports", ["xhr-polling"]); 
   suiteio.set("polling duration", 10); 
-});*/
+});
 
 surfer.config_all(suiteio.sockets);
 
