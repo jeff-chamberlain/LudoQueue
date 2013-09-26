@@ -10,6 +10,10 @@
     "type": "git",
     "url": "https://github.com/LudoQueue/LudoSuite"
   },
+  "dependencies": {
+    "socket.io": "*",
+    "express": "*"
+  },
   "author": "Jeff Chamberlain + LudoQueue Team",
   "license": "BSD-2-Clause",
   "bugs": {
