@@ -7,7 +7,7 @@ var app = express();
 app.use(express.static('public')).use(express.logger());
 var server = http.createServer(app);
 var suiteio = io.listen(server);
-server.listen(process.env.PORT || 10733);
+server.listen(process.env.PORT || 5000);
 
 app.get('/', function (req, res) {
   res.sendfile(__dirname + '/public/index.html');
@@ -18,7 +18,7 @@ app.get('/surf', function (req, res) {
 });
 
 suiteio.configure(function () { 
-  suiteio.set("transports", ["xhr-polling"]); 
+  suiteio.set("transports", ["xhr-polling"]);
   suiteio.set("polling duration", 10); 
 });
 
