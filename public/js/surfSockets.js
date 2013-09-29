@@ -1,6 +1,6 @@
 jQuery(document).ready( function() {
 
-	var socket = io.connect('http://localhost:5000/surf');
+	var socket = io.connect('http://ludosuite.herokuapp.com/surf');
 	
 	socket.on('newplayer', function (id) {
 		create_particle(id);
