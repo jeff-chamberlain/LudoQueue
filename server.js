@@ -17,10 +17,10 @@ app.get('/suite', function (req, res) {
   res.sendfile(__dirname + '/public/suite.html');
 });
 
-/*suiteio.configure(function () { 
+suiteio.configure(function () { 
   suiteio.set("transports", ["xhr-polling"]);
   suiteio.set("polling duration", 10); 
-});*/
+});
 
 
 var players = suiteio.of('/player').on('connection', function(socket) {
