@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+<head>
+<meta content="yes" name="apple-mobile-web-app-capable">
+<meta content="minimum-scale=1.0, width=device-width, maximum-scale=0.6667, user-scalable=no" name="viewport">
+<title>Player</title>
+<script src="/socket.io/socket.io.js"></script>
+<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+<script type="text/javascript" src="./js/player/manager.js" charset="utf-8"></script>
+<script type="text/javascript" src="./js/player/sockets.js" charset="utf-8"></script>
+<script type="text/javascript" src="./js/player/input.js" charset="utf-8"></script>
+<script type="text/javascript" src="./js/player/draw.js" charset="utf-8"></script>
+<script type="text/javascript" src="./js/player/overlay.js" charset="utf-8"></script>
+
+<link href="./css/playerStyle.css" rel="stylesheet" type="text/css">
+
+</head>
+<body>
+	<div class="elements" id="overlay">
+		<div id="start_over" class="over">
+			<table width="100%"><tr><td align="center">
+				<form id="start_form">
+					<input type="text" id="start_name" maxlength="15" placeholder="Enter your name..." /><br>
+					<input type="submit" value="Go" />
+				</form>
+			</td></tr></table>
+		</div>
+		<div id="error_over" class="over">
+			<table width="100%"><tr><td align="center">
+				<span id="err_text"></span>
+			</td></tr></table>
+		</div>
+	</div>
+	
+	<canvas id="canvas">
+	Sorry, your browser doesn't support HTML5 canvasses. :(
+	</canvas>
+	
+	
+</body>
+</html>

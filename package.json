@@ -12,7 +12,8 @@
   },
   "dependencies": {
     "socket.io": "*",
-    "express": "*"
+    "express": "*",
+    "suite": "*"
   },
   "author": "Jeff Chamberlain + LudoQueue Team",
   "license": "BSD-2-Clause",
