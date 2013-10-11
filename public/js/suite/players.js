@@ -4,10 +4,10 @@ var players = {},
 function player(new_name) {
 	this.name = new_name;
 	
-	var r = Math.random()*255>>0;
-	var g = Math.random()*255>>0;
-	var b = Math.random()*255>>0;
-	this.color = "rgba("+r+", "+g+", "+b+", 0.5)";
+	var r = Math.floor(Math.random()*155+100);
+	var g = Math.floor(Math.random()*155+100);
+	var b = Math.floor(Math.random()*155+100);
+	this.color = new RGBColor(r,g,b,0.5);
 	
 	ctx.font = '15pt Calibri';
 	var min_width = ctx.measureText(this.name).width;
@@ -24,12 +24,12 @@ function player(new_name) {
 	var update_wait = function() {};
 	
 	var update_surf = function() {
-		this.surfer.vx = (this.tiltFB / 5);
-		this.surfer.vy = (-this.tiltLR / 5);
+		this.surfer.vx = (this.tiltLR / 5);
+		this.surfer.vy = (-this.tiltFB / 5);
 	}
 	
 	var update_balance = function() {
-		this.balancer.angle += (-this.tiltLR / 5);
+		this.balancer.angle += (this.tiltLR / 50);
 	}
 	
 	var update_race = function() {
@@ -55,5 +55,16 @@ function player(new_name) {
 	}
 	else {
 		this.update = update_wait;
+	}
+}
+
+function RGBColor(_r,_g,_b,_a) {
+	this.r = _r;
+	this.g = _g;
+	this.b = _b;
+	this.a = _a;
+	this.is = function() {
+		var ret = "rgba("+this.r+", "+this.g+", "+this.b+", "+this.a+")";
+		return ret;
 	}
 }

@@ -77,7 +77,12 @@ function create_draw() {
 	};
 	
 	var balancing = function() {
-	
+		ctx.beginPath();
+		ctx.strokeStyle = "white";
+		ctx.lineWidth = "10";
+		ctx.moveTo(W/4,H/2);
+		ctx.lineTo(3*W/4,H/2);
+		ctx.stroke();
 	};
 	
 	var transition_down = false;

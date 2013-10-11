@@ -1,7 +1,7 @@
 var socket;
 
 function create_sockets() {
-	socket = io.connect('http://localhost:10733/player');
+	socket = io.connect('http://ludosuite.herokuapp.com/player');
 	
 	socket.on('game_entered',function(data) {
 		color = data.color;

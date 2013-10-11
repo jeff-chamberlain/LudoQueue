@@ -1,6 +1,6 @@
 var tiltLR = 0, 
     tiltFB = 0,
-    diff = 2,
+    diff = 1,
     sent_tilt = {lr:0,fb:0};
 
 function create_input() {
@@ -16,8 +16,8 @@ function create_input() {
 		});
 		
 		window.addEventListener('deviceorientation', function(eventData) {
-			tiltLR = eventData.gamma;
-			tiltFB = eventData.beta;
+			tiltLR = eventData.beta;
+			tiltFB = eventData.gamma;
 		});
 	};
 	
@@ -48,6 +48,7 @@ function create_input() {
 		if( judgeDiff(tiltLR,sent_tilt.lr) || judgeDiff(tiltFB,sent_tilt.fb) ) {
 			sent_tilt.lr = tiltLR;
 			sent_tilt.fb = tiltFB;
+			console.log('tilting surf');
 			socket.emit('tilt',sent_tilt);
 		}
 	};
@@ -59,6 +60,7 @@ function create_input() {
 	var balancing = function() {
 		if( judgeDiff(tiltLR,sent_tilt.lr) ) {
 			sent_tilt.lr = tiltLR;
+			console.log('tilting bal');
 			socket.emit('tilt',sent_tilt);
 		}
 	};

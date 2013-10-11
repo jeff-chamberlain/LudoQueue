@@ -17,20 +17,20 @@ var surf = function() {
 		ctx.beginPath();
 		
 		var gradient = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.radius);
-		gradient.addColorStop(0, s.color);
+		gradient.addColorStop(0, s.color.is());
 		gradient.addColorStop(1, "black");
 	
 		ctx.fillStyle = gradient;
 		ctx.arc(s.x, s.y, s.radius, Math.PI*2, false);
 		ctx.fill();
 		
-		ctx.globalCompositeOperation = "source-over";
+		/*ctx.globalCompositeOperation = "source-over";
 		ctx.font = '15pt Calibri';
 		ctx.textAlign = 'center';
 		ctx.textBaseline = "middle";
 		ctx.fillStyle = 'black';
-		ctx.fillText(s.name, s.x, s.y);
-	
+		ctx.fillText(s.name, s.x, s.y);*/
+		
 		s.x += s.vx;
 		s.y += s.vy;
 	
@@ -43,7 +43,7 @@ var surf = function() {
 
 var surf_init = function() {
 	console.log('surf init');
-	var next_check = 5000;//Math.random() * 60000 + 20000;
+	var next_check = Math.random() * 60000 + 20000;
 	change_timeout = setTimeout(change_check,next_check);
 	surf_message = new create_surf_message();
 	socket.emit('game_state_change','surfing');
@@ -120,7 +120,7 @@ function change_check() {
 		}
 	}
 	else {
-		var next_check = 5000;//Math.random() * 60000 + 20000;
+		var next_check = Math.random() * 60000 + 20000;
 		change_timeout = setTimeout(change_check,next_check);
 	}
 }
