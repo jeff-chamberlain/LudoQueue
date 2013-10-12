@@ -43,7 +43,7 @@ var surf = function() {
 
 var surf_init = function() {
 	console.log('surf init');
-	var next_check = Math.random() * 60000 + 20000;
+	var next_check = 5000;//Math.random() * 60000 + 20000;
 	change_timeout = setTimeout(change_check,next_check);
 	surf_message = new create_surf_message();
 	socket.emit('game_state_change','surfing');
@@ -64,32 +64,29 @@ function create_surf_message() {
 		if(next_index >= messages.length) {
 			next_index = 0;
 		}
-		ctx.font = '30pt Calibri';
-		this.width = ctx.measureText(this.text).width + 20;
-		this.rectX = (W/2) - (this.width/2);
 		this.time = Date.now();
-		this.revealed = false;
+		this.done = false;
 	}
 	
 	var message = new new_message();
 	
 	this.draw = function() {
-		ctx.font = '30pt Calibri';
-		ctx.textAlign = 'center';
-		ctx.textBaseline = "top";
-		ctx.fillStyle = 'white';
-		ctx.fillText(message.text, W/2, 50);
-		ctx.fillStyle = 'black';
-		ctx.fillRect(message.rectX,50,message.width,100)
-		if(!message.revealed && message.rectX > W/2 + (message.width/2) ) {
-			message.revealed = true;
-			message.rectX = W/2 - (4.5*message.width);
+		if(!message.done) {
+			ctx.font = '30pt Calibri';
+			ctx.textAlign = 'center';
+			ctx.textBaseline = "top";
+			ctx.fillStyle = 'white';
+			ctx.fillText(message.text, W/2, 50);
+			if(Date.now() - message.time >= 4000) {
+				message.done = true;
+				message.time = Date.now();
+			}
 		}
-		else if(message.revealed && message.rectX >= W/2 - (message.width/2)) {
-			message = new new_message();
+		else {
+			if(Date.now() - message.time >= 4000) {
+				message = new new_message();
+			}
 		}
-		message.rectX += message.width * ((Date.now() - message.time) / 1000);
-		message.time = Date.now();
 	}
 	
 }
@@ -111,16 +108,16 @@ function create_surfer(col,nam,rad) {
 
 function change_check() {
 	console.log('Checking to change');
-	if( player_count > 1 ) {
+	if( player_count > 0 ) {
 		if( Math.random() < 0.5 ) {
 			change_state("balance");
 		}
 		else {
-			change_state("balance");
+			change_state("race");
 		}
 	}
 	else {
-		var next_check = Math.random() * 60000 + 20000;
+		var next_check = 5000;//Math.random() * 60000 + 20000;
 		change_timeout = setTimeout(change_check,next_check);
 	}
 }

@@ -48,6 +48,7 @@ function balance_init() {
 	var counter = 0;
 	var screen_x_interval = W/5;
 	var screen_y_interval = H/6;
+	balancers = [];
 	for( var id in players ) {
 		balancers.push(id);
 		var b = players[id].balancer;

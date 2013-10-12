@@ -1,6 +1,7 @@
 var	game,
 	game_interval,
-	name;
+	name,
+	logged_in;
 
 jQuery(document).ready( function() {
 	game = new game_maker();

@@ -13,7 +13,6 @@ function player(new_name) {
 	var min_width = ctx.measureText(this.name).width;
 	this.radius = Math.random()*20 + min_width + 2;
 	
-	this.tap_count = 0;
 	this.tiltFB = 0;
 	this.tiltLR = 0;
 	
@@ -33,7 +32,7 @@ function player(new_name) {
 	}
 	
 	var update_race = function() {
-		this.racer.taps  = tap_count;
+		this.racer.tap();
 	}
 	
 	this.change_state = function(new_state) {

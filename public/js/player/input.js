@@ -1,6 +1,7 @@
 var tiltLR = 0, 
     tiltFB = 0,
-    diff = 1,
+    taps = 0,
+    diff = 2,
     sent_tilt = {lr:0,fb:0};
 
 function create_input() {
@@ -8,9 +9,9 @@ function create_input() {
 	this.init = function() {
 	
 		$('#start_form').submit(function(event){
-			game.overlay.fadeOutOver();0
-			game.change_state("waiting");
 			event.preventDefault();
+			game.overlay.fadeOutOver();
+			game.change_state("waiting");
 			name = $('#start_name').val();
 			socket.emit('enter',name);
 		});
@@ -18,6 +19,14 @@ function create_input() {
 		window.addEventListener('deviceorientation', function(eventData) {
 			tiltLR = eventData.beta;
 			tiltFB = eventData.gamma;
+		});
+		
+		$('#touch_area').on('touchend mouseup touchcancel', function(e) {
+			console.log('gen touch');
+			if(game.state == "racing" ) {
+				console.log('touch event');
+				taps ++;
+			}
 		});
 	};
 	
@@ -54,7 +63,11 @@ function create_input() {
 	};
 	
 	var racing = function() {
-		
+		if(taps >= 5) {
+			console.log('sending tap');
+			socket.emit('tap');
+			taps = 0;
+		}
 	};
 	
 	var balancing = function() {

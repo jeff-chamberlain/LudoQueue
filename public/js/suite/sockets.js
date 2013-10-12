@@ -2,7 +2,7 @@ var socket;
 
 function create_sockets() {
 
-	socket = io.connect('http://ludosuite.herokuapp.com/suite');
+	socket = io.connect('http://localhost:10733/suite');
 	
 	socket.on('player_enter', function (data) {
 		players[data.id] = new player(data.name);
@@ -15,7 +15,7 @@ function create_sockets() {
 		else {
 			player_state = "waiting";
 		}
-		socket.emit('player_in_game',{id:data.id, color:players[data.id].color.is(), state:player_state});
+		socket.emit('player_in_game',{id:data.id, color:players[data.id].color, state:player_state});
 	});
 	
 	
@@ -35,9 +35,8 @@ function create_sockets() {
 		p.update();
 	});
 	
-	socket.on('player_tap', function(data) {
-		var p = players[data.id];
-		p.tap_count ++;
+	socket.on('player_tap', function(id) {
+		var p = players[id];
 		p.update();
 	});
 	

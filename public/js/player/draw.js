@@ -64,7 +64,8 @@ function create_draw() {
 	var surfing = function() {
 		ctx.beginPath();
 		var gradient = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, 100);
-		gradient.addColorStop(0, color);
+		gradient.addColorStop(0, "white");
+		gradient.addColorStop(0.5, color);
 		gradient.addColorStop(1, "black");
 	
 		ctx.fillStyle = gradient;
@@ -73,7 +74,11 @@ function create_draw() {
 	};
 	
 	var racing = function() {
-	
+		ctx.font = '15pt Calibri';
+		ctx.textAlign = 'center';
+		ctx.textBaseline = "middle";
+		ctx.fillStyle = "white";
+		ctx.fillText("Racing", W/2, H/2);
 	};
 	
 	var balancing = function() {
@@ -138,7 +143,7 @@ function create_spinner() {
 		var spin_x = X + Math.cos(this.angle)*this.rad;
 		var spin_y = Y + Math.sin(this.angle)*this.rad;
 		var gradient = ctx.createRadialGradient(spin_x, spin_y, 0, spin_x, spin_y, this.rad);
-		gradient.addColorStop(0, "white");
+		gradient.addColorStop(0, color);
 		gradient.addColorStop(1, "black");
 		ctx.fillStyle = gradient;
 		ctx.arc(spin_x, spin_y, this.rad, Math.PI*2, false);
