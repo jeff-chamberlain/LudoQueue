@@ -1,7 +1,7 @@
 var socket;
 
 function create_sockets() {
-	socket = io.connect('192.168.2.9:10733/player');
+	socket = io.connect('http://ludosuite.herokuapp.com/player');
 	
 	socket.on('game_entered',function(data) {
 		logged_in = true;
