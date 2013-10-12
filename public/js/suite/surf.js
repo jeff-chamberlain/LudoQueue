@@ -43,7 +43,7 @@ var surf = function() {
 
 var surf_init = function() {
 	console.log('surf init');
-	var next_check = 5000;//Math.random() * 60000 + 20000;
+	var next_check = Math.random() * 60000 + 20000;
 	change_timeout = setTimeout(change_check,next_check);
 	surf_message = new create_surf_message();
 	socket.emit('game_state_change','surfing');
@@ -108,7 +108,7 @@ function create_surfer(col,nam,rad) {
 
 function change_check() {
 	console.log('Checking to change');
-	if( player_count > 0 ) {
+	if( player_count > 1 ) {
 		if( Math.random() < 0.5 ) {
 			change_state("balance");
 		}
@@ -117,7 +117,7 @@ function change_check() {
 		}
 	}
 	else {
-		var next_check = 5000;//Math.random() * 60000 + 20000;
+		var next_check = Math.random() * 60000 + 20000;
 		change_timeout = setTimeout(change_check,next_check);
 	}
 }
