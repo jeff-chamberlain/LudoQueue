@@ -32,19 +32,34 @@ function create_sockets() {
 	});
 	
 	socket.on('player_tilt', function(data) {
-		var p = players[data.id];
-		p.tiltFB = data.tilt.fb;
-		p.tiltLR = data.tilt.lr;
-		p.update();
+		player_action(data.id,function() {
+			var p = players[data.id];
+			p.tiltFB = data.tilt.fb;
+			p.tiltLR = data.tilt.lr;
+			p.update();
+		});
 	});
 	
 	socket.on('player_tap', function(id) {
-		var p = players[id];
-		p.update();
+		player_action(id,function() {
+			var p = players[id];
+			p.update();
+		});
 	});
 	
 	socket.on('player_pulse', function(id) {
-		var p = players[id];
-		p.send_pulse();
+		player_action(id,function() {
+			var p = players[id];
+			p.send_pulse();
+		});
 	});
+}
+
+function player_action(id,callback) {
+	if(players.hasOwnProperty(id)) {
+		callback();
+	}
+	else {
+		socket.emit('player_err',id);
+	}
 }

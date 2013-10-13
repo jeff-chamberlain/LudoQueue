@@ -37,7 +37,7 @@ var surf = function() {
 			var alph = xLerp(1,0,t);
 						
 			ctx.beginPath();
-			ctx.arc(s.x, s.y, rad, Math.PI*2, false);
+			ctx.arc(s.pulse_x, s.pulse_y, rad, Math.PI*2, false);
 			ctx.strokeStyle = 'rgba(255,255,255,'+alph+')';
 			ctx.lineWidth=line;
 			ctx.stroke();
@@ -127,12 +127,16 @@ function create_surfer(col,nam,rad) {
 	
 	this.pulse_draw = false;
 	this.pulse_time;
+	this.pulse_x = 0;
+	this.pulse_y = 0;
 	
 	this.pulse = function() {
 		if(!this.pulse_draw) {
 			console.log('pulse true');
 			this.pulse_draw = true;
 			this.pulse_time = Date.now();
+			this.pulse_x = this.x;
+			this.pulse_y = this.y;
 		}
 	}
 	
