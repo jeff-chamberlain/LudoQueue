@@ -2,20 +2,23 @@ var socket;
 
 function create_sockets() {
 
-	socket = io.connect('http://ludosuite.herokuapp.com/suite');
+	socket = io.connect('ludosuite.jit.su/suite');
 	
 	socket.on('player_enter', function (data) {
 		players[data.id] = new player(data.name);
 		player_count ++;
 		console.log("Player " + data.name + " connected on " + data.id + ". There are now " + player_count + " players");
 		var player_state;
+		var waiting_message;
 		if(game_state == "surf") {
 			player_state = "surfing";
+			waiting_message = "";
 		}
 		else {
 			player_state = "waiting";
+			waiting_message = "Will connect after minigame completes";
 		}
-		socket.emit('player_in_game',{id:data.id, color:players[data.id].color, state:player_state});
+		socket.emit('player_in_game',{id:data.id, color:players[data.id].color, state:player_state, message:waiting_message});
 	});
 	
 	
@@ -40,4 +43,8 @@ function create_sockets() {
 		p.update();
 	});
 	
+	socket.on('player_pulse', function(id) {
+		var p = players[id];
+		p.send_pulse();
+	});
 }

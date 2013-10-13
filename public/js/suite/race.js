@@ -22,7 +22,7 @@ var race = function() {
 		ctx.textAlign = 'center';
 		ctx.textBaseline = "top";
 		ctx.fillStyle = 'rgb(50,250,50)';
-		ctx.fillText(race_winner, W/2, 100);
+		ctx.fillText(race_winner, W/2, H/2);
 		if( Date.now() - race_win_time >= 4000 && game_state == "race") {
 			change_state("surf");
 		}
@@ -91,7 +91,7 @@ function create_racer(col,nam,rad) {
 		ctx.textAlign = 'center';
 		ctx.textBaseline = "middle";
 		ctx.fillStyle = "white";
-		ctx.fillText(name, this.homeX-100, this.homeY);
+		ctx.fillText(this.name, this.homeX-100, this.homeY);
 		if( moving ) {
 			var t = (Date.now() - tap_time)/1000;
 			if( t <= 1 ) {
@@ -102,6 +102,7 @@ function create_racer(col,nam,rad) {
 				moving = false;
 			}
 		}
+		ctx.beginPath();
 		var gradient = ctx.createRadialGradient(cur_x, this.homeY, 0, cur_x, this.homeY, radius);
 		gradient.addColorStop(0, color.is());
 		gradient.addColorStop(1, "black");
@@ -139,10 +140,10 @@ function create_racer(col,nam,rad) {
 
 function create_race_calls() {
 	var race_messages = [
-		{txt:"It's racing time!",length:3000},
-		{txt:"On the count of three, tap on your phone as fast as you can", length:4000},
-		{txt:"Tap fastest to win the race",length:2500},
-		{txt:"Ready?",length:1000},
+		{txt:"It's racing time!",length:2000},
+		{txt:"On the count of three, tap on your phone as fast as you can", length:2000},
+		{txt:"Tap fastest to win the race",length:2000},
+		{txt:"Ready?",length:500},
 		{txt:"3",length:500},
 		{txt:"2",length:500},
 		{txt:"1",length:500},
@@ -153,7 +154,6 @@ function create_race_calls() {
 	function new_race_message() {
 		this.text = race_messages[next_index].txt;
 		this.length = race_messages[next_index].length;
-		console.log(race_begun);
 		if(next_index == race_messages.length - 1) {
 			if(!race_begun) {
 				console.log('beginning race!');
@@ -190,8 +190,4 @@ function create_race_calls() {
 			}
 		}
 	}
-}
-
-function xLerp( v0, v1, t ) {
-	return(Math.floor( ( v0*(1-t) )+ ( v1*t ) ));
 }

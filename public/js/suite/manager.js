@@ -103,3 +103,7 @@ function state_init(next_state) {
 			break;
 	}
 }
+
+function xLerp( v0, v1, t ) {
+	return (v0*(1-t))+ (v1*t);
+}

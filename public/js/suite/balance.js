@@ -2,19 +2,24 @@ var start_time
 var balancers = [],
 	game_over,
 	balance_winner,
-	balance_win_time;
+	balance_win_time,
+	balance_calls,
+	balance_begun;
 
 var balance = function() {
-	var diff = (Date.now() - start_time) / 60000;
+	var diff = (Date.now() - start_time) / 180000;
 	ctx.globalCompositeOperation = "source-over";
 	ctx.fillStyle = "black";
 	ctx.fillRect(0, 0, W, H);
+	balance_calls.draw();
 	var alive_array = [];
 	for( var id in players ) {
 		if(balancers.indexOf(id) != -1) {
 			var b = players[id].balancer;
-			b.slide += (b.angle/2);
-			b.angle += (Math.random()) * diff - (diff/2)
+			if(balance_begun) {
+				b.slide += (b.angle/2);
+				b.angle += (Math.random() * diff) - (diff/2)
+			}
 			b.draw();
 			if(!b.dropped) {
 				alive_array.push(id);
@@ -62,6 +67,8 @@ function balance_init() {
 	start_time = Date.now();
 	game_over = false;
 	balance_winner = "";
+	balance_begun = false;
+	balance_calls = new create_balance_calls();
 	socket.emit('game_state_change','balancing');
 }
 
@@ -80,6 +87,11 @@ function create_balancer(col,nam,rad) {
 	var name = nam;
 	var drop_time;
 	
+	this.anglize = function(new_angle) {
+		if(balance_begun) {
+			this.angle += (new_angle / 100);
+		}
+	}
 	
 	this.draw = function() {
 	
@@ -130,6 +142,58 @@ function create_balancer(col,nam,rad) {
 			dropX = bal_x;
 			dropY = bal_y;
 			drop_time = Date.now();
+		}
+	}
+}
+
+function create_balance_calls() {
+	var balance_messages = [
+		{txt:"Tilt to keep your balance!",length:2000},
+		{txt:"Keep your phone level, with the screen pointed up", length:2000},
+		{txt:"Ready?",length:2000},
+		{txt:"3",length:500},
+		{txt:"2",length:500},
+		{txt:"1",length:500},
+		{txt:"GO!",length:5000}
+		];
+	var next_index = 0;
+		
+	function new_balance_message() {
+		this.text = balance_messages[next_index].txt;
+		this.length = balance_messages[next_index].length;
+		if(next_index == balance_messages.length - 1) {
+			if(!balance_begun) {
+				console.log('beginning balance!');
+				balance_begun = true;
+			}
+		}
+		else {
+			next_index ++;
+		}
+		this.time = Date.now();
+		this.done = false;
+	}
+	
+	var balance_message = new new_balance_message();
+	
+	this.draw = function() {
+		if(!balance_message.done) {
+			ctx.font = '30pt Calibri';
+			ctx.textAlign = 'center';
+			ctx.textBaseline = "middle";
+			ctx.fillStyle = 'yellow';
+			ctx.fillText(balance_message.text, W/2, H-50);
+			if(Date.now() - balance_message.time >= balance_message.length) {
+				if( next_index < balance_message.length-1 && !balance_begun) {
+					balance_message.done = true;
+				}
+				balance_message.time = Date.now();
+			}
+		}
+		else {
+			if(Date.now() - balance_message.time >= 500) {
+				balance_message = new new_balance_message();
+			}
 		}
 	}
 }

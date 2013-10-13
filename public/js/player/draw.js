@@ -14,6 +14,10 @@ function create_draw() {
 		H = window.innerHeight;	
 		canvas.width = W;
 		canvas.height = H;
+		if(game.overlay.menu != null) {
+			game.overlay.menu[0].style.top = H/2+'px';
+		}
+		console.log('resizing');
 	}, false);
 	
 	this.init = function() {
@@ -29,7 +33,6 @@ function create_draw() {
 	var tran_start;
 	
 	this.change_state = function(new_state_string) {
-		this.temp_state = this.state;
 		switch(new_state_string) {
 			case "waiting":
 				new_state = waiting;
@@ -44,21 +47,41 @@ function create_draw() {
 				new_state = balancing;
 				break;
 		}
-		if( this.temp_state != transition ) {
-			this.state = transition;
-			transition_time = Date.now();
+		if( this.state == transition ) {
+			this.temp_state = function(){};
 		}
 		else {
-			var transition_down = false;
-			var transition_alph = 0;
-			this.state = new_state;
+			this.temp_state = this.state;
 		}
+		transition_time = Date.now();
+		transition_down = false;
+		transition_alph = 0;
+		this.state = transition;
 	};
 	
 	this.spinner = new create_spinner();
 	
+	this.waiting_message = 'Please enter your name';
+	var waiting_message_time = Date.now();
+	
 	var waiting = function() {
+		ctx.globalCompositeOperation = "source-over";
+		ctx.fillStyle = "rgba(0, 0, 0, 0.08)";
+		ctx.fillRect(0, 0, W, H);
+		ctx.globalCompositeOperation = "lighter";
 		this.spinner.draw(W/2, H*4/5);
+		
+		if(Date.now() - waiting_message_time < 2000 ) {
+			ctx.font = '20pt Calibri';
+			ctx.textAlign = 'center';
+			ctx.textBaseline = "top";
+			ctx.fillStyle = 'white';
+			ctx.fillText(this.waiting_message, W/2, 50);
+		}
+		else if(Date.now() - waiting_message_time > 4000 ) {
+			waiting_message_time = Date.now();
+		}
+
 	};
 	
 	var surfing = function() {
@@ -74,11 +97,31 @@ function create_draw() {
 	};
 	
 	var racing = function() {
+		var box_width = (W/2)/4;
+		for(var i=0;i<4;i++) {
+			var left_style;
+			var right_style;
+			if(i%2 == 0) {
+				left_style = "white";
+				right_style = color;
+			}
+			else {
+				left_style = color;
+				right_style = "white";
+			}
+			var line_y = ((H/2)-(box_width*2))+(box_width*i);
+			for(var w=0;w<4;w++) {
+				box_x = ((W/2)-(box_width*2))+(box_width*w);
+				if( w % 2 == 0 ) {
+					ctx.fillStyle = left_style;
+				}
+				else {
+					ctx.fillStyle = right_style;
+				}
+				ctx.fillRect(box_x,line_y,box_width,box_width);
+			}
+		}
 		ctx.font = '15pt Calibri';
-		ctx.textAlign = 'center';
-		ctx.textBaseline = "middle";
-		ctx.fillStyle = "white";
-		ctx.fillText("Racing", W/2, H/2);
 	};
 	
 	var balancing = function() {
@@ -105,6 +148,7 @@ function create_draw() {
 				this.temp_state = new_state;
 				transition_alph = 1;
 				transition_down = true;
+				waiting_message_time = Date.now();
 			}
 		}
 		else {
@@ -134,16 +178,11 @@ function create_spinner() {
 	this.last_time = Date.now();
 	
 	this.draw = function(X,Y) {
-		ctx.globalCompositeOperation = "source-over";
-		ctx.fillStyle = "rgba(0, 0, 0, 0.08)";
-		ctx.fillRect(0, 0, W, H);
-		ctx.globalCompositeOperation = "lighter";
-		
 		ctx.beginPath();
 		var spin_x = X + Math.cos(this.angle)*this.rad;
 		var spin_y = Y + Math.sin(this.angle)*this.rad;
 		var gradient = ctx.createRadialGradient(spin_x, spin_y, 0, spin_x, spin_y, this.rad);
-		gradient.addColorStop(0, color);
+		gradient.addColorStop(0, "white");
 		gradient.addColorStop(1, "black");
 		ctx.fillStyle = gradient;
 		ctx.arc(spin_x, spin_y, this.rad, Math.PI*2, false);

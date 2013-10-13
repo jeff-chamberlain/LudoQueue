@@ -7,7 +7,7 @@ var app = express();
 app.use(express.static('public')).use(express.logger());
 var server = http.createServer(app);
 var suiteio = io.listen(server);
-server.listen(process.env.PORT || 10733);
+server.listen(8080);//process.env.PORT || 10733);
 
 app.get('/', function (req, res) {
   res.sendfile(__dirname + '/public/player.html');
@@ -30,8 +30,8 @@ var players = suiteio.of('/player').on('connection', function(socket) {
 	});
 });
 
+suite.set_all_players(players);
+
 suiteio.of('/suite').on('connection', function(socket) {
 	suite.config_game(socket);
 });
-
-suite.set_all_players(players);

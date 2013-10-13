@@ -4,14 +4,14 @@ var players = {},
 function player(new_name) {
 	this.name = new_name;
 	
-	var r = Math.floor(Math.random()*155+100);
-	var g = Math.floor(Math.random()*155+100);
-	var b = Math.floor(Math.random()*155+100);
+	var r = Math.floor(Math.random()*225+20);
+	var g = Math.floor(Math.random()*225+20);
+	var b = Math.floor(Math.random()*225+20);
 	this.color = new RGBColor(r,g,b,0.5);
 	
 	ctx.font = '15pt Calibri';
 	var min_width = ctx.measureText(this.name).width;
-	this.radius = Math.random()*20 + min_width + 2;
+	this.radius = Math.random()*20 + 20;
 	
 	this.tiltFB = 0;
 	this.tiltLR = 0;
@@ -28,7 +28,7 @@ function player(new_name) {
 	}
 	
 	var update_balance = function() {
-		this.balancer.angle += (this.tiltLR / 50);
+		this.balancer.anglize(this.tiltLR);
 	}
 	
 	var update_race = function() {
@@ -54,6 +54,12 @@ function player(new_name) {
 	}
 	else {
 		this.update = update_wait;
+	}
+	
+	this.send_pulse = function() {
+		if(game_state == "surf" ) {
+			this.surfer.pulse();
+		}
 	}
 }
 

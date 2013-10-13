@@ -1,12 +1,18 @@
 var surfers = {},
 	change_timeout,
-	surf_message;
+	surf_message,
+	minigame_switch = 0;
 
 var surf = function() {
 	ctx.globalCompositeOperation = "source-over";
 	ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
 	ctx.fillRect(0, 0, W, H);
 	surf_message.draw();
+	ctx.font = '30pt Calibri';
+	ctx.textAlign = 'center';
+	ctx.textBaseline = "bottom";
+	ctx.fillStyle = 'white';
+	ctx.fillText("Go to ludoqueue.com on your mobile phone", W/2, H-50);
 	ctx.globalCompositeOperation = "lighter";
 	
 	//Lets draw particles from the array now
@@ -23,6 +29,22 @@ var surf = function() {
 		ctx.fillStyle = gradient;
 		ctx.arc(s.x, s.y, s.radius, Math.PI*2, false);
 		ctx.fill();
+		
+		if(s.pulse_draw) {
+			var t = ( Date.now() - s.pulse_time ) / 2000;
+			var rad = xLerp(s.radius,s.radius*5,t);
+			var line = xLerp(5,0.1,t);
+			var alph = xLerp(1,0,t);
+						
+			ctx.beginPath();
+			ctx.arc(s.x, s.y, rad, Math.PI*2, false);
+			ctx.strokeStyle = 'rgba(255,255,255,'+alph+')';
+			ctx.lineWidth=line;
+			ctx.stroke();
+			if(t>=1) {
+				s.pulse_draw = false;
+			}
+		}
 		
 		/*ctx.globalCompositeOperation = "source-over";
 		ctx.font = '15pt Calibri';
@@ -54,8 +76,7 @@ function create_surf_message() {
 	var messages = [
 	"Go to ludoqueue.com",
 	"Hold your phone with the screen facing the ceiling",
-	"Tilt it to move",
-	"Go nuts"
+	"Tilt your phone to move!",
 	];
 	
 	function new_message() {
@@ -92,7 +113,6 @@ function create_surf_message() {
 }
 
 function create_surfer(col,nam,rad) {
-	//Random position on the canvas
 	this.x = Math.random()*W;
 	this.y = Math.random()*H;
 	
@@ -104,16 +124,30 @@ function create_surfer(col,nam,rad) {
 	
 	//Random size
 	this.radius = rad;
+	
+	this.pulse_draw = false;
+	this.pulse_time;
+	
+	this.pulse = function() {
+		if(!this.pulse_draw) {
+			console.log('pulse true');
+			this.pulse_draw = true;
+			this.pulse_time = Date.now();
+		}
+	}
+	
 }
 
 function change_check() {
 	console.log('Checking to change');
 	if( player_count > 1 ) {
-		if( Math.random() < 0.5 ) {
+		if( minigame_switch == 1 ) {
 			change_state("balance");
+			minigame_switch = 0;
 		}
 		else {
 			change_state("race");
+			minigame_switch = 1;
 		}
 	}
 	else {

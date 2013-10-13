@@ -1,10 +1,11 @@
 {
   "name": "LudoSuite",
-  "version": "0.0.0",
+  "version": "0.0.0-14",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "server.js"
   },
   "repository": {
     "type": "git",
@@ -15,9 +16,16 @@
     "express": "*",
     "suite": "*"
   },
+  "bundleDependencies": [
+    "suite"
+  ],
   "author": "Jeff Chamberlain + LudoQueue Team",
   "license": "BSD-2-Clause",
   "bugs": {
     "url": "https://github.com/LudoQueue/LudoSuite/issues"
+  },
+  "subdomain": "ludosuite",
+  "engines": {
+    "node": "0.10.x"
   }
 }
