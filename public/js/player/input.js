@@ -2,7 +2,8 @@ var tiltLR = 0,
     tiltFB = 0,
     taps = 0,
     diff = 2,
-    sent_tilt = {lr:0,fb:0};
+    sent_tilt = {lr:0,fb:0},
+    login_timeout;
 
 function create_input() {
 	
@@ -13,6 +14,7 @@ function create_input() {
 			game.overlay.fadeOutOver();
 			name = $('#start_name').val();
 			socket.emit('enter',name);
+			login_timeout = setTimeout(retryLogin,3000);
 			game.draw.waiting_message = "Waiting for game server";
 		});
 		
@@ -23,6 +25,7 @@ function create_input() {
 		
 		$('#touch_area').on('touchend mouseup touchcancel', function(e) {
 			if(game.state == "racing" || game.state == 'surfing') {
+				e.preventDefault();
 				taps ++;
 			}
 		});
@@ -79,6 +82,12 @@ function create_input() {
 	};
 	
 	this.state = waiting;
+}
+
+function retryLogin() {
+	console.log('retrying');
+	socket.emit('enter',name);
+	login_timeout = setTimeout(retryLogin,3000);
 }
 
 function judgeDiff( a, b ) {

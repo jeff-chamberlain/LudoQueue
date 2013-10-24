@@ -8,6 +8,7 @@ function create_sockets() {
 		$('#err_text').html('');
 		color = "rgba("+data.color.r+","+data.color.g+","+data.color.b+",1)";
 		game.change_state(data.state);
+		clearTimeout(login_timeout);
 		if(data.state == 'waiting') {
 			game.draw.waiting_message = data.message;
 		}
