@@ -11,14 +11,13 @@ function player(new_name) {
 	
 	ctx.font = '15pt Calibri';
 	var min_width = ctx.measureText(this.name).width;
-	this.radius = Math.random()*20 + 20;
 	
 	this.tiltFB = 0;
 	this.tiltLR = 0;
 	
-	this.surfer = new create_surfer(this.color, this.name, this.radius);
-	this.balancer = new create_balancer(this.color, this.name, this.radius);
-	this.racer = new create_racer(this.color, this.name, this.radius);
+	this.surfer = new create_surfer(this.color, this.name);
+	this.balancer = new create_balancer(this.color, this.name);
+	this.racer = new create_racer(this.color, this.name);
 	
 	var update_wait = function() {};
 	
@@ -28,7 +27,7 @@ function player(new_name) {
 	}
 	
 	var update_balance = function() {
-		this.balancer.anglize(this.tiltLR);
+		this.balancer.anglize(this.tiltFB);
 	}
 	
 	var update_race = function() {
@@ -57,8 +56,15 @@ function player(new_name) {
 	}
 	
 	this.send_pulse = function() {
-		if(game_state == "surf" ) {
-			this.surfer.pulse();
+		switch(game_state) {
+			case "surf":
+				this.surfer.pulse();
+				break;
+			case "balance":
+				this.balancer.pulse();
+				break;
+			case "race":
+				break;
 		}
 	}
 }

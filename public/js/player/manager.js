@@ -16,7 +16,6 @@ function game_maker() {
 	this.input = new create_input();
 	this.draw = new create_draw();
 	this.overlay = new create_overlay();
-	
 	this.state = "new";
 }
 

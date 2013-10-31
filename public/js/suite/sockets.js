@@ -2,7 +2,7 @@ var socket;
 
 function create_sockets() {
 
-	socket = io.connect('ludosuite.jit.su/suite');
+	socket = io.connect('https://ludosuite.jit.su/suite');
 	
 	socket.on('player_enter', function (data) {
 		players[data.id] = new player(data.name);

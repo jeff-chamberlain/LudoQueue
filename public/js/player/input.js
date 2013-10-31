@@ -1,5 +1,6 @@
 var tiltLR = 0, 
     tiltFB = 0,
+    tiltQ = 0,
     taps = 0,
     diff = 2,
     sent_tilt = {lr:0,fb:0},
@@ -21,13 +22,12 @@ function create_input() {
 		window.addEventListener('deviceorientation', function(eventData) {
 			tiltLR = eventData.gamma;
 			tiltFB = eventData.beta;
+			//tiltQ = eventData.alpha;
 		});
 		
 		$('#touch_area').on('touchend mouseup touchcancel', function(e) {
-			if(game.state == "racing" || game.state == 'surfing') {
-				e.preventDefault();
-				taps ++;
-			}
+			e.preventDefault();
+			taps ++;
 		});
 	};
 	
@@ -68,16 +68,20 @@ function create_input() {
 	};
 	
 	var racing = function() {
-		if(taps >= 5) {
+		if(taps > 0) {
 			socket.emit('tap');
 			taps = 0;
 		}
 	};
 	
 	var balancing = function() {
-		if( judgeDiff(tiltLR,sent_tilt.lr) ) {
-			sent_tilt.lr = tiltLR;
+		if( judgeDiff(tiltFB,sent_tilt.fb) ) {
+			sent_tilt.fb = tiltFB;
 			socket.emit('tilt',sent_tilt);
+		}
+		if(taps > 0) {
+			socket.emit('pulse');
+			taps = 0;
 		}
 	};
 	

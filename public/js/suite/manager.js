@@ -19,14 +19,16 @@ function Init() {
 	ctx = canvas.getContext("2d");
 	W = window.innerWidth;
 	H = window.innerHeight;
+	console.log(W + ' ' + H);
 	canvas.width = W;
 	canvas.height = H;
 	
-	game_state = "surf";
-	state = surf;
-	surf_init();
-	
-	drawInter = setInterval(draw, 33);
+	loadImages( function(){
+		game_state = "surf";
+		state = surf;
+		surf_init();
+		drawInter = setInterval(draw, 33);
+	});
 }
 
 function draw() {
@@ -102,8 +104,4 @@ function state_init(next_state) {
 			surf_init();
 			break;
 	}
-}
-
-function xLerp( v0, v1, t ) {
-	return (v0*(1-t))+ (v1*t);
 }

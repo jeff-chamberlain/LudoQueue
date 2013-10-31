@@ -1,192 +1,165 @@
-var start_line,
-	finish_line,
-	race_begun,
-	race_calls,
-	race_won,
+var race_begun,
+	race_over,
 	race_win_time,
 	race_winner,
-	racers = [];
+	racers = [],
+	race_countdown,
+	tap_goal = 200;
 
 var race = function() {
 	ctx.globalCompositeOperation = "source-over";
-	ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
-	ctx.fillRect(0, 0, W, H);
-	ctx.fillStyle = "red";
-	ctx.fillRect(start_line-2.5, 0, 5, H);
-	ctx.fillRect(finish_line-2.5, 0, 5, H);
-	if(!race_won) {
-		race_calls.draw();
+	ctx.drawImage(images.bg,0,0,W,H);
+	ctx.font = '30pt Calibri';
+	ctx.textAlign = 'left';
+	ctx.textBaseline = 'top';
+	ctx.fillStyle = 'rgb(203,140,129';
+	ctx.fillText("lud.so", 10, 10);
+	ctx.font = '50pt Lucida Grande';
+	ctx.textAlign = 'center';
+	ctx.fillText("LudoQueue", W/2, 10);
+	
+	for( var id in players ) {
+		if(racers.indexOf(id) != -1) {
+			var r = players[id].racer;
+			r.draw();
+		}
 	}
-	else {
+	if(!race_begun) {
+		race_countdown.draw();
+	}
+	else if(!race_over) {
 		ctx.font = '30pt Calibri';
 		ctx.textAlign = 'center';
-		ctx.textBaseline = "top";
-		ctx.fillStyle = 'rgb(50,250,50)';
-		ctx.fillText(race_winner, W/2, H/2);
-		if( Date.now() - race_win_time >= 4000 && game_state == "race") {
-			change_state("surf");
-		}
+		ctx.textBaseline = 'middle';
+		ctx.fillStyle = 'rgb(37,159,127)';
+		ctx.fillText('Drip!', W/2, H/2);
 	}
-	ctx.globalCompositeOperation = "lighter";
-	var live_count = 0;
-	for(var i=0;i<racers.length;i++) {
-		var id = racers[i];
-		if(players.hasOwnProperty(id)) {
-			live_count ++;
-			var r = players[id].racer;
-			r.move();
-			if(r.finished && !race_won) {
-				race_won = true;
-				race_win_time = Date.now();
-				race_winner = r.name + " has WON!!!";
-			}
+	else {
+		ctx.font = '50pt Calibri';
+		ctx.textAlign = 'center';
+		ctx.textBaseline = "middle";
+		ctx.fillStyle = 'rgb(37,159,127)';
+		ctx.fillText(race_winner + " WINS!",W/2,H/2);
+		if( Date.now() - race_win_time > 3000 && game_state == "race") {
+			change_state("balance");
 		}
-	}
-	if(live_count == 0 && game_state == "race") {
-		change_state("surf");
 	}
 }
 
 var race_init = function() {
 	console.log('race init');
-	start_line = 200;
-	finish_line = W - 200;
-	race_begun = false;
-	race_won = false;
-	race_winner = "";
-	race_calls = new create_race_calls();
-	
-	racers = [];
-	var y_interval = (H-200)/(player_count+1);
-	var count = 1;
+	var race_space = (H/2)/((player_count/2)+1);
+	var radius = (H/2)-(race_space/2);
+	var angle_inc = (Math.PI*2)/player_count;
+	var counter = 0;
 	for( var id in players ) {
+		var x_off = radius*Math.cos(counter*angle_inc);
+		var y_off = radius*Math.sin(counter*angle_inc);
 		racers.push(id);
 		var r = players[id].racer;
-		var y = 200 + (y_interval*count);
-		r.prepare(y,start_line,finish_line);
-		count ++;
+		r.set_values((W/2)+x_off,(H/2)+y_off,race_space);;
+		counter++;
 	}
+	race_over = false;
+	race_winner = "";
+	race_begun = false;
+	race_countdown = new create_race_countdown();
 	socket.emit('game_state_change','racing');
 }
 
 function create_racer(col,nam,rad) {
-
-	this.tap_count = 0;
-	this.homeY = 0;
-	this.homeX = 0;
-	this.dest = 0;
-	this.finished = false;
-	this.name = nam;
-
+	var home_x = 0;
+	var home_y = 0;
+	var space = 0;
+	
+	var maker_x = 0;
+	var maker_y = 0;
+	
+	var tap_count = 0;
+	
+	var name = nam;
 	var color = col;
-	var radius = 40;
-	var tap_time;
-	var cur_x;
-	var last_x;
-	var moving;
+	color.a = 1;
 	
-	this.move = function() {
+	var drips = [];
+	
+	this.set_values = function(this_x,this_y,this_space) {
+		home_x = this_x;
+		home_y = this_y;
+		space = this_space;
 		
-		ctx.font = '15pt Calibri';
+		maker_x = home_x-(space/2);
+		maker_y = home_y-(space/2);
+		
+		tap_count = 0;
+		drips = [];
+	}
+	
+	this.draw = function() {
+		ctx.drawImage(images.maker,maker_x,maker_y,space,space);
+		for(var i=drips.length-1;i>=0;i--) {
+			drips[i].draw();
+		}
+		var rect_fill_height = (tap_count/tap_goal)*((2*space)/7);
+		ctx.fillStyle = 'black';
+		ctx.fillRect(maker_x +(space/3.5),maker_y+((5*space)/6)-rect_fill_height,space/4,rect_fill_height);
+		ctx.font = (space/10)+'pt Calibri';
 		ctx.textAlign = 'center';
-		ctx.textBaseline = "middle";
-		ctx.fillStyle = "white";
-		ctx.fillText(this.name, this.homeX-100, this.homeY);
-		if( moving ) {
-			var t = (Date.now() - tap_time)/1000;
-			if( t <= 1 ) {
-				var dest_x = xLerp(this.homeX,this.dest,this.tap_count/40);
-				cur_x = xLerp(last_x,dest_x,t);
-			}
-			else {
-				moving = false;
-			}
-		}
-		ctx.beginPath();
-		var gradient = ctx.createRadialGradient(cur_x, this.homeY, 0, cur_x, this.homeY, radius);
-		gradient.addColorStop(0, color.is());
-		gradient.addColorStop(1, "black");
-	
-		ctx.fillStyle = gradient;
-		ctx.arc(cur_x, this.homeY, radius, Math.PI*2, false);
-		ctx.fill();
-		
-		if(cur_x >= this.dest) {
-			this.finished = true;
-		}
+		ctx.textBaseline = 'top';
+		ctx.fillStyle = color.is();
+		ctx.fillText(name,maker_x + (space/2),maker_y+space+10);
 	}
 	
 	this.tap = function() {
 		if(race_begun) {
-			this.tap_count ++;
-			tap_time = Date.now();
-			last_x = cur_x;
-			moving = true;
+			tap_count ++;
+			if(tap_count>=tap_goal && !race_over) {
+				race_over = true;
+				race_winner = name;
+				race_win_time = Date.now();
+			}
+			var drip = new create_drip();
+			drips.push(drip);
 		}
 	}
 	
-	this.prepare = function(y, start, finish) {
-		this.tap_count = 0;
-		this.homeY = y;
-		this.homeX = start;
-		this.dest = finish;
-		this.finished = false;
+	function create_drip() {
+		var drip_x = maker_x+(0.4*space);
+		var drip_y = maker_y+(0.4*space);
+		var drip_rad = 0.01*space;
+		var drip_time = Date.now();
 		
-		cur_x = start;
-		last_x = start;
-		moving = false;
+		this.draw = function() {
+			ctx.beginPath();
+			ctx.fillStyle = 'rgb(83,47,36)';
+			ctx.arc(drip_x, drip_y, drip_rad, Math.PI*2, false);
+			ctx.fill();
+			
+			drip_y += ((Date.now()-drip_time)/500)*(0.5*space);
+			
+			if(drip_y >= maker_y +(0.9*space)) {
+				var index = drips.indexOf(this);
+				if(index != -1) {
+					drips.splice(index,1);
+				}
+			}
+		}
 	}
 }
-
-function create_race_calls() {
-	var race_messages = [
-		{txt:"It's racing time!",length:2000},
-		{txt:"On the count of three, tap on your phone as fast as you can", length:2000},
-		{txt:"Tap fastest to win the race",length:2000},
-		{txt:"Ready?",length:500},
-		{txt:"3",length:500},
-		{txt:"2",length:500},
-		{txt:"1",length:500},
-		{txt:"GO!",length:5000}
-		];
-	var next_index = 0;
-		
-	function new_race_message() {
-		this.text = race_messages[next_index].txt;
-		this.length = race_messages[next_index].length;
-		if(next_index == race_messages.length - 1) {
-			if(!race_begun) {
-				console.log('beginning race!');
-				socket.emit('begin_race');
-				race_begun = true;
-			}
-		}
-		else {
-			next_index ++;
-		}
-		this.time = Date.now();
-		this.done = false;
-	}
-	
-	var race_message = new new_race_message();
-	
+function create_race_countdown() {
+	var interval_time = Date.now();
+	var count = 5;
 	this.draw = function() {
-		if(!race_message.done) {
-			ctx.font = '30pt Calibri';
-			ctx.textAlign = 'center';
-			ctx.textBaseline = "top";
-			ctx.fillStyle = 'yellow';
-			ctx.fillText(race_message.text, W/2, 100);
-			if(Date.now() - race_message.time >= race_message.length) {
-				if( next_index < race_message.length-1 && !race_begun) {
-					race_message.done = true;
-				}
-				race_message.time = Date.now();
-			}
-		}
-		else {
-			if(Date.now() - race_message.time >= race_message.length) {
-				race_message = new new_race_message();
+		ctx.font = '30pt Calibri';
+		ctx.textAlign = 'middle';
+		ctx.textBaseline = 'middle';
+		ctx.fillStyle = 'rgb(37,159,127)';
+		ctx.fillText(count, W/2, H/2);
+		if(Date.now()-interval_time>=1000) {
+			count--;
+			interval_time = Date.now();
+			if(count==0) {
+				race_begun=true;
 			}
 		}
 	}
