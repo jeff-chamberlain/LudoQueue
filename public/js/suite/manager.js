@@ -24,6 +24,7 @@ function Init() {
 	canvas.height = H;
 	
 	loadImages( function(){
+		//fake_players(5);
 		game_state = "surf";
 		state = surf;
 		surf_init();
@@ -103,5 +104,11 @@ function state_init(next_state) {
 		case surf:
 			surf_init();
 			break;
+	}
+}
+function fake_players(count) {
+	for( var i=0;i<count;i++) {
+		players[i] = new player('player'+i);
+		player_count ++;
 	}
 }

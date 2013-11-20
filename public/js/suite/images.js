@@ -5,10 +5,12 @@ var sources = {
 	bean2 : '/images/bean2.png',
 	bean3 : '/images/bean3.png',
 	bean4 : '/images/bean4.png',
+	grounds: '/images/grounds.png',
 	cup : '/images/cup.png',
 	grinder : '/images/grinder.png',
 	maker : '/images/maker.png',
 	pot : '/images/pot.png',
+	reflec : '/images/pot_reflection.png',
 };
 
 function loadImages(callback) {

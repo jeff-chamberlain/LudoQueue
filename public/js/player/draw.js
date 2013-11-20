@@ -10,7 +10,56 @@ function create_draw() {
 	ctx = canvas.getContext("2d");
 	W = window.innerWidth;
 	H = window.innerHeight;
-	//orien = new orienValues(window.orientation);
+	
+	var anim_index = 0;
+	var anim_switch = 0;
+	var anim_check = 0;
+	var surf_anim = [
+		anim_set(images.neutral,0,0,images.grinder,0,0,1000),
+		anim_set(images.tiltL,0,0,images.grinder,-50,0,1000),
+		anim_set(images.neutral,0,0,images.grinder,-50,0,1000),
+		anim_set(images.tiltR,0,0,images.grinder,0,0,1000),
+		anim_set(images.neutral,0,0,images.grinder,0,0,1000),
+		anim_set(images.tiltB,0,0,images.grinder,0,-50,1000),
+		anim_set(images.neutral,0,0,images.grinder,0,-50,1000),
+		anim_set(images.tiltF,0,0,images.grinder,0,0,1000),
+		anim_set(images.neutral,0,0,images.grinder,0,0,1000),
+		anim_set(images.tapU,0,0,images.grinderB,0,0,1000),
+		anim_set(images.tapD,0,0,images.grinderG,0,0,1000),
+		anim_set(images.tapU,0,0,images.grinderB,0,0,1000),
+		anim_set(images.tapD,0,0,images.grinderG,0,0,1000),
+	];
+	var bal_anim = [
+		anim_set(images.pourU,0,0,images.pour1,0,0,1000),
+		anim_set(images.pourD,0,0,images.pour2,0,0,1000),
+		anim_set(images.pourU,0,0,images.pour3,0,0,1000),
+		anim_set(images.pourD,0,0,images.pour4,0,0,1000),
+		anim_set(images.pourD,0,0,images.pour5,0,0,1000),
+		anim_set(images.tapU,0,0,images.pour6,0,0,1000),
+		anim_set(images.tapD,0,0,images.pourC,0,0,1000),
+		anim_set(images.tapD,0,0,images.pourX1,0,0,1000),
+		anim_set(images.tapD,0,0,images.pourX2,0,0,1000),
+		anim_set(images.tapD,0,0,images.pourC,0,0,1000),
+	];
+	var race_anim = [
+		anim_set(images.tapU,0,0,images.maker,0,0,1000),
+		anim_set(images.tapD,0,0,images.race1,0,0,1000),
+		anim_set(images.tapU,0,0,images.race1,0,0,1000),
+		anim_set(images.tapD,0,0,images.race2,0,0,1000),
+		anim_set(images.tapU,0,0,images.race2,0,0,125),
+		anim_set(images.tapD,0,0,images.race2,0,0,125),
+		anim_set(images.tapU,0,0,images.race2,0,0,125),
+		anim_set(images.tapD,0,0,images.race3,0,0,125),
+		anim_set(images.tapU,0,0,images.race3,0,0,125),
+		anim_set(images.tapD,0,0,images.race3,0,0,125),
+		anim_set(images.tapU,0,0,images.race3,0,0,125),
+		anim_set(images.tapD,0,0,images.race4,0,0,125),
+		anim_set(images.tapU,0,0,images.race4,0,0,125),
+		anim_set(images.tapD,0,0,images.race4,0,0,125),
+		anim_set(images.tapU,0,0,images.race4,0,0,125),
+		anim_set(images.tapD,0,0,images.race5,0,0,1000),
+	];
+	
 	window.addEventListener("resize", function() {
 		W = window.innerWidth;
 		H = window.innerHeight;	
@@ -19,17 +68,30 @@ function create_draw() {
 		if(game.overlay.menu != null) {
 			game.overlay.menu[0].style.top = H/2+'px';
 		}
-		//orien = new orienValues(window.orientation);
 	}, false);
-	/*window.addEventListener("orientationchange", function() {
-		orien = new orienValues(window.orientation);
-	}, false);*/
+	window.addEventListener("orientationchange", function() {
+		if(window.orientation == 0 || window.orientation == 180) {
+			anim_switch = 0;
+		}
+		else {
+			anim_switch = 1;
+		}
+	}, false);
 	this.init = function() {
 		canvas.width = W;
 		canvas.height = H;
+		if(window.orientation == 0 || window.orientation == 180) {
+			anim_switch = 0;
+		}
+		else {
+			anim_switch = 1;
+		}
+		anim_check = Date.now();
 	};
 	
-	this.play = function() { this.state(); };
+	this.play = function() { 
+		this.state();
+	};
 	
 	this.temp_state = function() {};
 	
@@ -91,103 +153,19 @@ function create_draw() {
 	var surfing = function() {
 		ctx.fillStyle = color;
 		ctx.fillRect(0, 0, W, H);
-		ctx.font = '20pt Calibri';
-		ctx.textAlign = 'center';
-		ctx.textBaseline = 'middle';
-		var text = 'Tilt to move, tap to grind!';
-		var rect_size = ctx.measureText(text);
-		ctx.fillStyle = 'black';
-		ctx.fillRect((W/2)-(rect_size.width/2)-5,(H/2)-25,rect_size.width+10,50);
-		ctx.fillStyle = 'white';
-		ctx.fillText(text,W/2,H/2);
-		/*ctx.font = '20pt Calibri';
-		ctx.textAlign = 'center';
-		ctx.fillStyle = 'white';
-		ctx.textBaseline = orien.left.bl;
-		var met = ctx.measureText('left');
-		var xmod = (met.width / 2) * orien.left.side;
-		ctx.fillText('left', orien.left.x + xmod, orien.left.y);
-		ctx.textBaseline = orien.right.bl;
-		met = ctx.measureText('right');
-		xmod = (met.width / 2) * orien.right.side;
-		ctx.fillText('right', orien.right.x + xmod, orien.right.y);
-		ctx.textBaseline = orien.up.bl;
-		met = ctx.measureText('up');
-		xmod = (met.width / 2) * orien.up.side;
-		ctx.fillText('up', orien.up.x + xmod, orien.up.y);
-		ctx.textBaseline = orien.down.bl;
-		met = ctx.measureText('down');
-		xmod = (met.width / 2) * orien.down.side;
-		ctx.fillText('down', orien.down.x + xmod, orien.down.y);*/
-		/*ctx.beginPath();
-		var gradient = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, 100);
-		gradient.addColorStop(0, "white");
-		gradient.addColorStop(0.5, color);
-		gradient.addColorStop(1, "black");
-	
-		ctx.fillStyle = gradient;
-		ctx.arc(W/2, H/2, 100, Math.PI*2, false);
-		ctx.fill();*/
+		animate(surf_anim);
 	};
 	
 	var racing = function() {
 		ctx.fillStyle = color;
 		ctx.fillRect(0, 0, W, H);
-		ctx.font = '20pt Calibri';
-		ctx.textAlign = 'center';
-		ctx.textBaseline = 'middle';
-		var text = 'Tap to drip!';
-		var rect_size = ctx.measureText(text);
-		ctx.fillStyle = 'black';
-		ctx.fillRect((W/2)-(rect_size.width/2)-5,(H/2)-25,rect_size.width+10,50);
-		ctx.fillStyle = 'white';
-		ctx.fillText(text,W/2,H/2);
-		/*var box_width = (W/2)/4;
-		for(var i=0;i<4;i++) {
-			var left_style;
-			var right_style;
-			if(i%2 == 0) {
-				left_style = "white";
-				right_style = color;
-			}
-			else {
-				left_style = color;
-				right_style = "white";
-			}
-			var line_y = ((H/2)-(box_width*2))+(box_width*i);
-			for(var w=0;w<4;w++) {
-				box_x = ((W/2)-(box_width*2))+(box_width*w);
-				if( w % 2 == 0 ) {
-					ctx.fillStyle = left_style;
-				}
-				else {
-					ctx.fillStyle = right_style;
-				}
-				ctx.fillRect(box_x,line_y,box_width,box_width);
-			}
-		}
-		ctx.font = '15pt Calibri';*/
+		animate(race_anim);
 	};
 	
 	var balancing = function() {
 		ctx.fillStyle = color;
 		ctx.fillRect(0, 0, W, H);
-		ctx.font = '20pt Calibri';
-		ctx.textAlign = 'center';
-		ctx.textBaseline = 'middle';
-		var text = 'Tilt to pour, tap for a new cup!';
-		var rect_size = ctx.measureText(text);
-		ctx.fillStyle = 'black';
-		ctx.fillRect((W/2)-(rect_size.width/2)-5,(H/2)-50,rect_size.width+10,100);
-		ctx.fillStyle = 'white';
-		ctx.fillText(text,W/2,H/2-25);
-		ctx.fillText("Don't spill!",W/2,H/2+25);
-		/*ctx.beginPath();
-		ctx.strokeStyle = "white";
-		ctx.lineWidth = "10";
-		ctx.moveTo(W/4,H/2);
-		ctx.lineTo(3*W/4,H/2);
-		ctx.stroke();*/
+		animate(bal_anim);
 	};
 	
 	var transition_down = false;
@@ -196,7 +174,7 @@ function create_draw() {
 	
 	var transition = function() {
 		if( !transition_down ) {
-			transition_alph += ( Date.now() - transition_time ) / 1500;
+			transition_alph += ( Date.now() - transition_time ) / 500;
 			this.temp_state();
 			ctx.globalCompositeOperation = "source-over";
 			ctx.fillStyle = "rgba(0, 0, 0, "+transition_alph+")";
@@ -205,6 +183,8 @@ function create_draw() {
 				this.temp_state = new_state;
 				transition_alph = 1;
 				transition_down = true;
+				anim_index = 0;
+				anim_check = Date.now();
 				waiting_message_time = Date.now();
 			}
 		}
@@ -215,7 +195,7 @@ function create_draw() {
 				transition_alph = 0;
 			}
 			else {
-				transition_alph -= ( Date.now() - transition_time ) / 1500;
+				transition_alph -= ( Date.now() - transition_time ) / 500;
 				this.temp_state();
 				ctx.globalCompositeOperation = "source-over";
 				ctx.fillStyle = "rgba(0, 0, 0, "+transition_alph+")";
@@ -227,6 +207,52 @@ function create_draw() {
 	
 	this.state = function(){};
 	
+	function animate(anim_array) {
+		var rat = (W/2)/400;
+		var length = anim_array[anim_index]['length'];
+		var t = (Date.now() - anim_check)/length;
+		if(anim_switch == 1) {
+			var cont_x = W/4;
+			var cont_y = H/2;
+			var res_x = (3*W)/4;
+			var res_y = H/2;
+		}
+		else {
+			var cont_x = W/2;
+			var cont_y = (3*H)/4;
+			var res_x = W/2;
+			var res_y = H/4;
+		}
+		var cont = anim_array[anim_index]['cont'];
+		var res = anim_array[anim_index]['res'];
+		if(anim_index == 0) {
+			var cont_xy = {'x': cont.x, 'y': cont.y };
+			var res_xy = {'x': res.x, 'y': res.y };
+		}
+		else {
+			var cont_prev = anim_array[anim_index-1]['cont'];
+			var cont_xy = xyLerp(cont_prev.x,cont.x,cont_prev.y,cont.y,t);
+			var res_prev = anim_array[anim_index-1]['res'];
+			var res_xy = xyLerp(res_prev.x,res.x,res_prev.y,res.y,t);
+		}
+		var cont_hig = (cont.source.height/cont.source.width)*300;
+		var res_hig = (res.source.height/res.source.width)*300;
+		ctx.save();
+		ctx.transform(rat,0,0,rat,cont_x,cont_y);
+		ctx.drawImage(cont.source,cont_xy['x']-150,cont_xy['y']-(cont_hig/2),300,cont_hig);
+		ctx.restore();
+		ctx.save();
+		ctx.transform(rat,0,0,rat,res_x,res_y);
+		ctx.drawImage(res.source,res_xy['x']-150,res_xy['y']-(res_hig/2),300,res_hig);
+		ctx.restore();
+		if(t >= 1) {
+			anim_index ++;
+			if(anim_index >= anim_array.length) {
+				anim_index = 0;
+			}
+			anim_check = Date.now();
+		}
+	}
 }
 
 function create_spinner() {
@@ -253,39 +279,17 @@ function create_spinner() {
 	};
 }
 
-/*function orienValues(deviceOrien) {
-	if(deviceOrien == 90 || deviceOrien == -90) {
-		if(tiltLR > 0) {
-			deviceOrien = 90;
-		}
-		else {
-			deviceOrien = -90;
-		}
-	}
-	switch(deviceOrien) {
-		case 90:
-			this.left = {x:W/2,y:H,bl:'bottom',side:0};
-			this.right = {x:W/2,y:0,bl:'top',side:0};
-			this.up = {x:0,y:H/2,bl:'middle',side:1};
-			this.down = {x:W,y:H/2,bl:'middle',side:-1};
-			break;
-		case -90:
-			this.left = {x:W/2,y:0,bl:'top',side:0};
-			this.right = {x:W/2,y:H,bl:'bottom',side:0};
-			this.up = {x:W,y:H/2,bl:'middle',side:-1};
-			this.down = {x:0,y:H/2,bl:'middle',side:1};
-			break;
-		case 180:
-			this.left = {x:W,y:H/2,bl:'middle',side:-1};
-			this.right = {x:0,y:H/2,bl:'middle',side:1};
-			this.up = {x:W/2,y:H,bl:'bottom',side:0};
-			this.down = {x:W/2,y:0,bl:'top',side:0};
-			break;
-		default:
-			this.left = {x:0,y:H/2,bl:'middle',side:1};
-			this.right = {x:W,y:H/2,bl:'middle',side:-1};
-			this.up = {x:W/2,y:0,bl:'top',side:0};
-			this.down = {x:W/2,y:H,bl:'bottom',side:0};
-			break;
-	}
-}*/
+function anim_set(cont_source,cont_x,cont_y,res_source,res_x,res_y,length) {
+	return { 'cont': new anim(cont_source,cont_x,cont_y), 'res': new anim(res_source,res_x,res_y), 'length': length };
+}
+function anim(this_source,this_x,this_y) {
+	this.x = this_x;
+	this.y = this_y;
+	this.source = this_source;
+}
+
+function xyLerp( x0, x1, y0, y1, t ) {
+	var x00 = (x0*(1-t))+ (x1*t);
+	var y00 = (y0*(1-t))+ (y1*t);
+	return {'x': x00, 'y':y00};
+}

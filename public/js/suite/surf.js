@@ -1,24 +1,22 @@
 var surfers = {},
 	beans = [],
 	bean_count = 20,
-	grounds_level = 0;
+	grounds_level = 0,
+	grounds_target = 1;
 	
 var surf = function() {
 	ctx.globalCompositeOperation = "source-over";
 	ctx.drawImage(images.bg,0,0,W,H);
-	ctx.font = '30pt Calibri';
-	ctx.textAlign = 'left';
-	ctx.textBaseline = 'top';
-	ctx.fillStyle = 'rgb(203,140,129)';
-	ctx.fillText("lud.so", 10, 10);
-	ctx.font = '50pt Lucida Grande';
-	ctx.textAlign = 'center';
-	ctx.fillText("LudoQueue", W/2, 10);
 	
-	ctx.beginPath();
-	ctx.fillStyle = 'rgb(83,47,36)';
-	ctx.fillRect(0, H-grounds_level, W, grounds_level);
+	var grounds_y = (grounds_level/grounds_target)*H;
+	var grounds_height = (images.grounds.height/images.grounds.width)*W;
+	ctx.drawImage(images.grounds,0,H-grounds_y,W,grounds_height);
 	
+	for(var id in players)
+	{
+		var s = players[id].surfer;
+		s.draw();
+	}
 	for(var i=beans.length-1;i>=0;i--)
 	{
 		beans[i].draw();
@@ -28,12 +26,7 @@ var surf = function() {
 		var bean = new create_bean();
 		beans.push(bean);
 	}
-	for(var id in players)
-	{
-		var s = players[id].surfer;
-		s.draw();
-	}
-	if(grounds_level > 200 && game_state == 'surf') {
+	if(grounds_level >= grounds_target && game_state == 'surf') {
 		change_state("race");
 	}
 }
@@ -48,46 +41,6 @@ var surf_init = function() {
 	socket.emit('game_state_change','surfing');
 }
 
-/*function create_surf_message() {
-	var next_index = 0;
-	var messages = [
-	"Go to ludoqueue.com",
-	"Hold your phone with the screen facing the ceiling",
-	"Tilt your phone to move!",
-	];
-	
-	function new_message() {
-		this.text = messages[next_index];
-		next_index ++;
-		if(next_index >= messages.length) {
-			next_index = 0;
-		}
-		this.time = Date.now();
-		this.done = false;
-	}
-	
-	var message = new new_message();
-	
-	this.draw = function() {
-		if(!message.done) {
-			ctx.font = '30pt Calibri';
-			ctx.textAlign = 'center';
-			ctx.textBaseline = "top";
-			ctx.fillStyle = 'white';
-			ctx.fillText(message.text, W/2, 50);
-			if(Date.now() - message.time >= 4000) {
-				message.done = true;
-				message.time = Date.now();
-			}
-		}
-		else {
-			if(Date.now() - message.time >= 4000) {
-				message = new new_message();
-			}
-		}
-	}
-	
-}*/
 
 function create_surfer(col,nam,rad) {
 	var x = Math.random()*W;
@@ -194,7 +147,7 @@ function create_bean() {
 			}
 			if(Date.now()-grind_time>2500) {
 				this.remove();
-				grounds_level +=10;
+				grounds_level ++;
 			}
 		}
 		else {
@@ -230,15 +183,3 @@ function create_bean() {
 		}
 	}
 }
-
-
-/*function change_check() {
-	console.log('Checking to change');
-	if( player_count > 1 ) {
-		change_state("race");
-	}
-	else {
-		var next_check = Math.random() * 60000 + 20000;
-		change_timeout = setTimeout(change_check,next_check);
-	}
-}*/

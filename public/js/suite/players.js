@@ -9,9 +9,6 @@ function player(new_name) {
 	var b = Math.floor(Math.random()*225+20);
 	this.color = new RGBColor(r,g,b,0.5);
 	
-	ctx.font = '15pt Calibri';
-	var min_width = ctx.measureText(this.name).width;
-	
 	this.tiltFB = 0;
 	this.tiltLR = 0;
 	
@@ -22,8 +19,8 @@ function player(new_name) {
 	var update_wait = function() {};
 	
 	var update_surf = function() {
-		this.surfer.vx = (this.tiltLR / 5);
-		this.surfer.vy = (-this.tiltFB / 5);
+		this.surfer.vx = (this.tiltFB / 5);
+		this.surfer.vy = (this.tiltLR / 5);
 	}
 	
 	var update_balance = function() {

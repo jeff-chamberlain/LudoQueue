@@ -4,10 +4,12 @@ var	game,
 	logged_in;
 
 jQuery(document).ready( function() {
-	game = new game_maker();
-	game.init();
-	game.change_state("waiting");
-	game_interval = setInterval( play, 33 );
+	loadImages( function(){
+		game = new game_maker();
+		game.init();
+		game.change_state("waiting");
+		game_interval = setInterval( play, 33 );
+	});
 });
 
 function game_maker() {
