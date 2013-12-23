@@ -1,10 +1,12 @@
 var socket;
 
 function create_sockets() {
-	socket = io.connect('http://192.168.2.8:8080/player');//https://ludosuite.jit.su/player');
+	socket = io.connect('https://ludosuite.jit.su/player');//http://192.168.1.117:8080/player');
 	
 	socket.on('game_entered',function(data) {
 		logged_in = true;
+		id = data.id;
+		playAudio(audio.bell_chime);
 		$('#err_text').html('');
 		color = "rgba("+data.color.r+","+data.color.g+","+data.color.b+",1)";
 		game.change_state(data.state);
@@ -18,9 +20,28 @@ function create_sockets() {
 			game.change_state(new_state);
 		}
 	});
-	socket.on('race_start',function() {
+	socket.on('game_start',function() {
 		if(logged_in) {
 			taps = 0;
+			game_running = true;
+		}
+	});
+	socket.on('game_end',function(winner) {
+		if(logged_in) {
+			game_running = false;
+			if(winner == id) {
+				if(game.state == "racing") {
+					playAudio(audio.coffee_done,false);
+				}
+				else {
+					console.log('balance won!');
+				}
+			}
+		}
+	});
+	socket.on('spill',function() {
+		if(logged_in) {
+			playAudio(audio.spilling,false);
 		}
 	});
 	socket.on('err',function(message) {

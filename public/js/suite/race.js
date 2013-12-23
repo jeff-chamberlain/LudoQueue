@@ -5,20 +5,12 @@ var race_begun,
 	race_winner,
 	race_winner_color,
 	racers = [],
-	race_countdown,
+	pre_race,
 	tap_goal = 200;
 
 var race = function() {
 	ctx.globalCompositeOperation = "source-over";
 	ctx.drawImage(images.bg,0,0,W,H);
-	/*ctx.font = '30pt Calibri';
-	ctx.textAlign = 'left';
-	ctx.textBaseline = 'top';
-	ctx.fillStyle = 'rgb(203,140,129';
-	ctx.fillText("lud.so", 10, 10);
-	ctx.font = '50pt Lucida Grande';
-	ctx.textAlign = 'center';
-	ctx.fillText("LudoQueue", W/2, 10);*/
 	
 	for( var id in players ) {
 		if(racers.indexOf(id) != -1) {
@@ -27,22 +19,18 @@ var race = function() {
 		}
 	}
 	if(!race_begun) {
-		race_countdown.draw();
+		pre_race.draw();
 	}
-	else if(!race_over) {
+	else if(race_over) {
 		ctx.font = '100pt Calibri';
 		ctx.textAlign = 'center';
 		ctx.textBaseline = 'middle';
-		ctx.fillStyle = 'rgb(0,0,0)';
-		//ctx.fillText('Drip!', W/2, H/2);
-	}
-	else {
-		ctx.font = '50pt Calibri';
-		ctx.textAlign = 'center';
-		ctx.textBaseline = "middle";
-		ctx.fillStyle = 'rgb(0,0,0)';
-		ctx.fillText(race_winner + " WINS!",W/2,H/2);
-		if( Date.now() - race_start_time > 3000 && game_state == "race") {
+		ctx.strokeStyle = 'black';
+		ctx.lineWidth = 4;
+		ctx.strokeText(race_winner+' WINS!',W/2,H/2);
+		ctx.fillStyle = race_winner_color;
+		ctx.fillText(race_winner+' WINS!',W/2,H/2);
+		if( Date.now() - race_win_time > 3000 && game_state == "race") {
 			change_state("balance");
 		}
 	}
@@ -65,12 +53,12 @@ var race_init = function() {
 	race_over = false;
 	race_winner = "";
 	race_begun = false;
-	race_countdown = new create_race_countdown();
+	pre_race = new create_pre_race();
 	race_start_time = Date.now();
 	socket.emit('game_state_change','racing');
 }
 
-function create_racer(col,nam) {
+function create_racer(col,nam,pId) {
 	var home_x = 0;
 	var home_y = 0;
 	var rat = 0;
@@ -86,11 +74,15 @@ function create_racer(col,nam) {
 	
 	var name = nam;
 	var color = col;
+	var id = pId;
+	
 	color.a = 1;
 	
 	var drips = [];
 	
 	var time = Date.now();
+	
+	this.is_pre = false;
 	
 	this.set_values = function(this_x,this_y,this_hig) {
 		home_x = this_x;
@@ -116,12 +108,10 @@ function create_racer(col,nam) {
 			drips[i].draw();
 		}
 		ctx.drawImage(images.maker,maker_x,maker_y,maker_wid,maker_hig);
-		drawFill(tap_count/tap_goal);
-		ctx.drawImage(images.reflec,maker_x+(37*rat),maker_y+(260*rat),reflec_wid,reflec_hig);
-		if(Date.now()-time>1000) {
-			this.tap();
-			time = Date.now();
+		if(!this.is_pre) {
+			this.drawFill(tap_count/tap_goal);
 		}
+		ctx.drawImage(images.reflec,maker_x+(37*rat),maker_y+(260*rat),reflec_wid,reflec_hig);
 		ctx.font = (40*rat)+'pt Calibri';
 		ctx.textAlign = 'center';
 		ctx.textBaseline = 'top';
@@ -133,18 +123,20 @@ function create_racer(col,nam) {
 	}
 	
 	this.tap = function() {
-		if(race_begun) {
+		if(race_begun || this.is_pre) {
 			tap_count ++;
 			if(tap_count>=tap_goal && !race_over) {
 				race_over = true;
 				race_winner = name;
+				race_winner_color = color;
 				race_win_time = Date.now();
+				socket.emit('game_end',id);
 			}
 			var drip = new create_drip();
 			drips.push(drip);
 		}
 	}
-	function drawFill(perc) {
+	this.drawFill = function(perc) {
 		if(perc>1) {
 			perc=1;
 		}
@@ -193,21 +185,113 @@ function create_racer(col,nam) {
 		}
 	}
 }
-function create_race_countdown() {
-	var interval_time = Date.now();
-	var count = 5;
+
+function create_pre_race() {
+	var pre_racer = new create_racer(new RGBColor(0,0,255,1),'');
+	pre_racer.set_values((3*W)/5,H/2,H/3);
+	pre_racer.is_pre = true;
+	var pre_perc = 0;
+	var finger_offset = 0;
+	var pre_title = 'Tap your phone to make coffee!';
+	var pre_race_array = [
+		new timed_func(1000, function(){}, function(t){}),
+		new timed_func(1000, function(){}, function(t){
+			finger_offset = xLerp(0,50,1-Math.pow((2*t)-1,2));
+		}),
+		new timed_func(1000, function(){
+			pre_racer.tap();
+		}, function(t){}),
+		new timed_func(1000, function(){}, function(t){}),
+		new timed_func(200, function(){
+			pre_title = 'Tap faster to brew faster';
+		}, function(t){
+			pre_perc = xLerp(0,0.1,t);
+			finger_offset = xLerp(0,50,1-Math.pow((2*t)-1,2));
+		}),
+		new timed_func(200, function(){
+			pre_racer.tap();
+		}, function(t){
+			pre_perc = xLerp(0.1,0.2,t);
+			finger_offset = xLerp(0,50,1-Math.pow((2*t)-1,2));
+		}),
+		new timed_func(200, function(){
+			pre_racer.tap();
+		}, function(t){
+			pre_perc = xLerp(0.2,0.3,t);
+			finger_offset = xLerp(0,50,1-Math.pow((2*t)-1,2));
+		}),
+		new timed_func(200, function(){
+			pre_racer.tap();
+		}, function(t){
+			pre_perc = xLerp(0.3,0.4,t);
+			finger_offset = xLerp(0,50,1-Math.pow((2*t)-1,2));
+		}),
+		new timed_func(200, function(){
+			pre_racer.tap();
+		}, function(t){
+			pre_perc = xLerp(0.4,0.5,t);
+			finger_offset = xLerp(0,50,1-Math.pow((2*t)-1,2));
+		}),
+		new timed_func(200, function(){
+			pre_racer.tap();
+		}, function(t){
+			pre_perc = xLerp(0.5,0.6,t);
+			finger_offset = xLerp(0,50,1-Math.pow((2*t)-1,2));
+		}),
+		new timed_func(200, function(){
+			pre_racer.tap();
+		}, function(t){
+			pre_perc = xLerp(0.6,0.7,t);
+			finger_offset = xLerp(0,50,1-Math.pow((2*t)-1,2));
+		}),
+		new timed_func(200, function(){
+			pre_racer.tap();
+		}, function(t){
+			pre_perc = xLerp(0.7,0.8,t);
+			finger_offset = xLerp(0,50,1-Math.pow((2*t)-1,2));
+		}),
+		new timed_func(200, function(){
+			pre_racer.tap();
+		}, function(t){
+			pre_perc = xLerp(0.8,0.9,t);
+			finger_offset = xLerp(0,50,1-Math.pow((2*t)-1,2));
+		}),
+		new timed_func(200, function(){
+			pre_racer.tap();
+		}, function(t){
+			pre_perc = xLerp(0.9,1,t);
+			finger_offset = xLerp(0,50,1-Math.pow((2*t)-1,2));
+		}),
+		new timed_func(1500, function(){}, function(t){}),
+		new timed_func(3000, function(){
+			pre_title = 'Fill your pot first to win!';
+		}, function(t){}),
+		new timed_func(2000, function(){
+			pre_title = 'Ready?';
+		}, function(t){}),
+		new timed_func(1000, function(){
+			pre_title = 'GO!';
+		}, function(t){}),
+];
+	var pre_race_manager = new timed_manager(pre_race_array,function(){ 
+			race_begun=true;
+			socket.emit('game_start');
+		});
 	this.draw = function() {
-		ctx.font = '100pt Calibri';
-		ctx.textAlign = 'middle';
-		ctx.textBaseline = 'middle';
-		ctx.fillStyle = 'rgb(0,0,0)';
-		ctx.fillText(count, W/2, H/2);
-		if(Date.now()-interval_time>=1000) {
-			count--;
-			interval_time = Date.now();
-			if(count==0) {
-				race_begun=true;
-			}
-		}
+		pre_race_manager.run();
+		ctx.fillStyle="rgba(255,255,255,.95)";
+		ctx.fillRect((W/4),(H/4),W/2,H/2);
+		pre_racer.draw();
+		pre_racer.drawFill(pre_perc);
+		ctx.drawImage(images.hand_tap_phone,(W/2)-(H/3),H/3,H/3,H/3);
+		ctx.drawImage(images.hand_tap_finger,(W/2)-(H/3),H/3-finger_offset,H/3,H/3);
+		ctx.font = '40pt Calibri';
+		ctx.textAlign = 'center';
+		ctx.textBaseline = 'top';
+		ctx.strokeStyle = 'black';
+		ctx.lineWidth = 6;
+		ctx.strokeText(pre_title,W/2,H/4+10);
+		ctx.fillStyle = 'white';
+		ctx.fillText(pre_title,W/2,H/4+10);
 	}
 }

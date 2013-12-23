@@ -2,16 +2,23 @@ var surfers = {},
 	beans = [],
 	bean_count = 20,
 	grounds_level = 0,
-	grounds_target = 1;
+	prev_level = 0,
+	next_level = 0,
+	ground_time,
+	grounds_target = 40;
 	
 var surf = function() {
 	ctx.globalCompositeOperation = "source-over";
 	ctx.drawImage(images.bg,0,0,W,H);
-	
+	ctx.drawImage(images.hand_arrows,(W/2)-300,0,300,300);
+	ctx.drawImage(images.hand_tap,W/2,0,300,300);
+	if(grounds_level < next_level) {
+		var t = (Date.now()-ground_time)/1000;
+		grounds_level = xLerp(prev_level,next_level,t);
+	}
 	var grounds_y = (grounds_level/grounds_target)*H;
 	var grounds_height = (images.grounds.height/images.grounds.width)*W;
 	ctx.drawImage(images.grounds,0,H-grounds_y,W,grounds_height);
-	
 	for(var id in players)
 	{
 		var s = players[id].surfer;
@@ -34,6 +41,8 @@ var surf = function() {
 var surf_init = function() {
 	console.log('surf init');
 	grounds_level = 0;
+	next_level = 0;
+	prev_level = 0;
 	for(var i=0;i<bean_count;i++) {
 		var bean = new create_bean();
 		beans.push(bean);
@@ -42,7 +51,7 @@ var surf_init = function() {
 }
 
 
-function create_surfer(col,nam,rad) {
+function create_surfer(col,nam) {
 	var x = Math.random()*W;
 	var y = Math.random()*H;
 	var width = images.grinder.width;
@@ -51,6 +60,7 @@ function create_surfer(col,nam,rad) {
 	this.vx = 0;
 	this.vy = 0;
 	
+	var name = nam;
 	var color = col;
 	color.a=1;
 	
@@ -61,15 +71,6 @@ function create_surfer(col,nam,rad) {
 		if(!pulse_draw) {
 			pulse_draw = true;
 			pulse_time = Date.now();
-		
-			for(var i=beans.length-1;i>=0;i--) {
-				var bean = beans[i];
-				var dist = Math.abs(Math.sqrt(Math.pow(x-bean.x,2)+Math.pow(y-bean.y,2)));
-				if( dist < 50) {
-					bean.ground = true;
-					break;
-				}
-			}
 		}
 	}
 	
@@ -85,6 +86,14 @@ function create_surfer(col,nam,rad) {
 			if(timeDiff >= 1000) {
 				pulse_draw = false;
 			}
+			for(var i=beans.length-1;i>=0;i--) {
+				var bean = beans[i];
+				var dist = Math.pow(x-bean.x,2)+Math.pow(y-bean.y,2);
+				if( dist < 2500) {
+					bean.ground = true;
+					break;
+				}
+			}
 		}
 		else {
 			ctx.drawImage(images.grinder,x-(width/2),y-(height/2),100,100);
@@ -94,6 +103,15 @@ function create_surfer(col,nam,rad) {
 		ctx.arc(x,y,15,Math.PI*2,false);
 		ctx.fillStyle = color.is();
 		ctx.fill();
+		
+		ctx.font = '18pt Calibri';
+		ctx.textAlign = 'center';
+		ctx.textBaseline = 'middle';
+		ctx.strokeStyle = 'black';
+		ctx.lineWidth = 4;
+		ctx.strokeText(name,x,y);
+		ctx.fillStyle = 'white';
+		ctx.fillText(name,x,y);
 		
 		x += this.vx;
 		y += this.vy;
@@ -137,6 +155,10 @@ function create_bean() {
 		if(this.ground) {
 			if(grinds.length==0) {
 				grind_time = Date.now();
+				prev_level = grounds_level;
+				console.log(next_level);
+				next_level ++;
+				ground_time = Date.now();
 				for(var i=0;i<20;i++) {
 					var grind = new create_grind(this.x,this.y);
 					grinds.push(grind);
@@ -147,7 +169,6 @@ function create_bean() {
 			}
 			if(Date.now()-grind_time>2500) {
 				this.remove();
-				grounds_level ++;
 			}
 		}
 		else {

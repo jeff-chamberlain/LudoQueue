@@ -1,4 +1,4 @@
-var canvas,
+	var canvas,
 	ctx,
 	W,
 	H,
@@ -11,55 +11,6 @@ function create_draw() {
 	W = window.innerWidth;
 	H = window.innerHeight;
 	
-	var anim_index = 0;
-	var anim_switch = 0;
-	var anim_check = 0;
-	var surf_anim = [
-		anim_set(images.neutral,0,0,images.grinder,0,0,1000),
-		anim_set(images.tiltL,0,0,images.grinder,-50,0,1000),
-		anim_set(images.neutral,0,0,images.grinder,-50,0,1000),
-		anim_set(images.tiltR,0,0,images.grinder,0,0,1000),
-		anim_set(images.neutral,0,0,images.grinder,0,0,1000),
-		anim_set(images.tiltB,0,0,images.grinder,0,-50,1000),
-		anim_set(images.neutral,0,0,images.grinder,0,-50,1000),
-		anim_set(images.tiltF,0,0,images.grinder,0,0,1000),
-		anim_set(images.neutral,0,0,images.grinder,0,0,1000),
-		anim_set(images.tapU,0,0,images.grinderB,0,0,1000),
-		anim_set(images.tapD,0,0,images.grinderG,0,0,1000),
-		anim_set(images.tapU,0,0,images.grinderB,0,0,1000),
-		anim_set(images.tapD,0,0,images.grinderG,0,0,1000),
-	];
-	var bal_anim = [
-		anim_set(images.pourU,0,0,images.pour1,0,0,1000),
-		anim_set(images.pourD,0,0,images.pour2,0,0,1000),
-		anim_set(images.pourU,0,0,images.pour3,0,0,1000),
-		anim_set(images.pourD,0,0,images.pour4,0,0,1000),
-		anim_set(images.pourD,0,0,images.pour5,0,0,1000),
-		anim_set(images.tapU,0,0,images.pour6,0,0,1000),
-		anim_set(images.tapD,0,0,images.pourC,0,0,1000),
-		anim_set(images.tapD,0,0,images.pourX1,0,0,1000),
-		anim_set(images.tapD,0,0,images.pourX2,0,0,1000),
-		anim_set(images.tapD,0,0,images.pourC,0,0,1000),
-	];
-	var race_anim = [
-		anim_set(images.tapU,0,0,images.maker,0,0,1000),
-		anim_set(images.tapD,0,0,images.race1,0,0,1000),
-		anim_set(images.tapU,0,0,images.race1,0,0,1000),
-		anim_set(images.tapD,0,0,images.race2,0,0,1000),
-		anim_set(images.tapU,0,0,images.race2,0,0,125),
-		anim_set(images.tapD,0,0,images.race2,0,0,125),
-		anim_set(images.tapU,0,0,images.race2,0,0,125),
-		anim_set(images.tapD,0,0,images.race3,0,0,125),
-		anim_set(images.tapU,0,0,images.race3,0,0,125),
-		anim_set(images.tapD,0,0,images.race3,0,0,125),
-		anim_set(images.tapU,0,0,images.race3,0,0,125),
-		anim_set(images.tapD,0,0,images.race4,0,0,125),
-		anim_set(images.tapU,0,0,images.race4,0,0,125),
-		anim_set(images.tapD,0,0,images.race4,0,0,125),
-		anim_set(images.tapU,0,0,images.race4,0,0,125),
-		anim_set(images.tapD,0,0,images.race5,0,0,1000),
-	];
-	
 	window.addEventListener("resize", function() {
 		W = window.innerWidth;
 		H = window.innerHeight;	
@@ -69,27 +20,12 @@ function create_draw() {
 			game.overlay.menu[0].style.top = H/2+'px';
 		}
 	}, false);
-	window.addEventListener("orientationchange", function() {
-		if(window.orientation == 0 || window.orientation == 180) {
-			anim_switch = 0;
-		}
-		else {
-			anim_switch = 1;
-		}
-	}, false);
 	this.init = function() {
 		canvas.width = W;
 		canvas.height = H;
-		if(window.orientation == 0 || window.orientation == 180) {
-			anim_switch = 0;
-		}
-		else {
-			anim_switch = 1;
-		}
-		anim_check = Date.now();
 	};
 	
-	this.play = function() { 
+	this.play = function() {
 		this.state();
 	};
 	
@@ -138,11 +74,13 @@ function create_draw() {
 		this.spinner.draw(W/2, H-15);
 		
 		if(Date.now() - waiting_message_time < 2000 ) {
-			ctx.font = '20pt Calibri';
+			ctx.font = '40px Calibri';
 			ctx.textAlign = 'center';
-			ctx.textBaseline = "top";
+			ctx.textBaseline = 'top';
+			ctx.lineWidth = 4;
+			ctx.strokeStyle = 'black';
 			ctx.fillStyle = 'white';
-			ctx.fillText(this.waiting_message, W/2, 50);
+			wrapText(this.waiting_message, W/2, 50, W, 45);
 		}
 		else if(Date.now() - waiting_message_time > 4000 ) {
 			waiting_message_time = Date.now();
@@ -153,19 +91,19 @@ function create_draw() {
 	var surfing = function() {
 		ctx.fillStyle = color;
 		ctx.fillRect(0, 0, W, H);
-		animate(surf_anim);
+		show_disp();
 	};
 	
 	var racing = function() {
 		ctx.fillStyle = color;
 		ctx.fillRect(0, 0, W, H);
-		animate(race_anim);
+		show_disp();
 	};
 	
 	var balancing = function() {
 		ctx.fillStyle = color;
 		ctx.fillRect(0, 0, W, H);
-		animate(bal_anim);
+		show_disp();
 	};
 	
 	var transition_down = false;
@@ -206,53 +144,6 @@ function create_draw() {
 	};
 	
 	this.state = function(){};
-	
-	function animate(anim_array) {
-		var rat = (W/2)/400;
-		var length = anim_array[anim_index]['length'];
-		var t = (Date.now() - anim_check)/length;
-		if(anim_switch == 1) {
-			var cont_x = W/4;
-			var cont_y = H/2;
-			var res_x = (3*W)/4;
-			var res_y = H/2;
-		}
-		else {
-			var cont_x = W/2;
-			var cont_y = (3*H)/4;
-			var res_x = W/2;
-			var res_y = H/4;
-		}
-		var cont = anim_array[anim_index]['cont'];
-		var res = anim_array[anim_index]['res'];
-		if(anim_index == 0) {
-			var cont_xy = {'x': cont.x, 'y': cont.y };
-			var res_xy = {'x': res.x, 'y': res.y };
-		}
-		else {
-			var cont_prev = anim_array[anim_index-1]['cont'];
-			var cont_xy = xyLerp(cont_prev.x,cont.x,cont_prev.y,cont.y,t);
-			var res_prev = anim_array[anim_index-1]['res'];
-			var res_xy = xyLerp(res_prev.x,res.x,res_prev.y,res.y,t);
-		}
-		var cont_hig = (cont.source.height/cont.source.width)*300;
-		var res_hig = (res.source.height/res.source.width)*300;
-		ctx.save();
-		ctx.transform(rat,0,0,rat,cont_x,cont_y);
-		ctx.drawImage(cont.source,cont_xy['x']-150,cont_xy['y']-(cont_hig/2),300,cont_hig);
-		ctx.restore();
-		ctx.save();
-		ctx.transform(rat,0,0,rat,res_x,res_y);
-		ctx.drawImage(res.source,res_xy['x']-150,res_xy['y']-(res_hig/2),300,res_hig);
-		ctx.restore();
-		if(t >= 1) {
-			anim_index ++;
-			if(anim_index >= anim_array.length) {
-				anim_index = 0;
-			}
-			anim_check = Date.now();
-		}
-	}
 }
 
 function create_spinner() {
@@ -278,18 +169,44 @@ function create_spinner() {
 		this.last_time = Date.now();
 	};
 }
-
-function anim_set(cont_source,cont_x,cont_y,res_source,res_x,res_y,length) {
-	return { 'cont': new anim(cont_source,cont_x,cont_y), 'res': new anim(res_source,res_x,res_y), 'length': length };
+function show_disp() {
+	if( H > W ) {
+		var logo_hig = W*(images.logo.height/images.logo.width);
+		ctx.drawImage(images.logo,0,(H/2)-(logo_hig/2),W,logo_hig);
+	}
+	else {
+		var logo_wid = H*(images.logo.width/images.logo.height);
+		ctx.drawImage(images.logo,(W/2)-(logo_wid/2),0,logo_wid,H);
+	}
+	ctx.font = '40px Calibri';
+	ctx.textAlign = 'center';
+	ctx.textBaseline = 'top';
+	ctx.lineWidth = 4;
+	ctx.strokeStyle = 'black';
+	ctx.strokeText(name,W/2,H/2-20);
+	ctx.fillStyle = 'white';
+	ctx.fillText(name,W/2,H/2-20);
+	wrapText("Turn your volume up!",W/2,0,W,45);
 }
-function anim(this_source,this_x,this_y) {
-	this.x = this_x;
-	this.y = this_y;
-	this.source = this_source;
-}
 
-function xyLerp( x0, x1, y0, y1, t ) {
-	var x00 = (x0*(1-t))+ (x1*t);
-	var y00 = (y0*(1-t))+ (y1*t);
-	return {'x': x00, 'y':y00};
+function wrapText(text, x, y, maxWidth, lineHeight) {
+	var words = text.split(' ');
+	var line = '';
+
+	for(var n = 0; n < words.length; n++) {
+		var testLine = line + words[n] + ' ';
+		var metrics = ctx.measureText(testLine);
+		var testWidth = metrics.width;
+		if (testWidth > maxWidth && n > 0) {
+			ctx.strokeText(line, x, y);
+			ctx.fillText(line, x, y);
+			line = words[n] + ' ';
+			y += lineHeight;
+		}
+		else {
+			line = testLine;
+		}
+	}
+	ctx.strokeText(line, x, y);
+	ctx.fillText(line, x, y);
 }

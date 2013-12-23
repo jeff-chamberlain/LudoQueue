@@ -6,9 +6,9 @@
 <title>Player</title>
 <script src="/socket.io/socket.io.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+<script type="text/javascript" src="./js/player/assets.js" charset="utf-8"></script>
 <script type="text/javascript" src="./js/player/manager.js" charset="utf-8"></script>
 <script type="text/javascript" src="./js/player/sockets.js" charset="utf-8"></script>
-<script type="text/javascript" src="./js/player/images.js" charset="utf-8"></script>
 <script type="text/javascript" src="./js/player/input.js" charset="utf-8"></script>
 <script type="text/javascript" src="./js/player/draw.js" charset="utf-8"></script>
 <script type="text/javascript" src="./js/player/overlay.js" charset="utf-8"></script>
@@ -19,7 +19,7 @@
 </head>
 <body>
 	<div id="touch_area"></div>
-	<div class="elements" id="overlay">
+	<div class="elements" id="overlay" style="display:none;">
 		<div id="start_over" class="over">
 			<table width="100%"><tr><td align="center">
 				<form id="start_form">
@@ -30,11 +30,44 @@
 			</td></tr></table>
 		</div>
 	</div>
-	
 	<canvas id="canvas">
 	Sorry, your browser doesn't support HTML5 canvasses. :(
 	</canvas>
-	
-	
+	<audio id="pAudio" src="./audio/sprite.wav"></audio>
+	<audio id="bell_chime" hidden="true" preload="auto">
+		<!--<source src="./audio/bell_chime.mp3" type="audio/mpeg">-->
+		<source src="./audio/bell_chime.wav" type="audio/wav">
+		<!--<source src="./audio/bell_chime.ogg" type="audio/ogg">-->
+	</audio>
+	<audio id="changing_cup" hidden="true" preload="auto">
+		<!--<source src="./audio/changing_cup.mp3" type="audio/mpeg">-->
+		<source src="./audio/changing_cup.wav" type="audio/wav">
+		<!--<source src="./audio/changing_cup.ogg" type="audio/ogg">-->
+	</audio>
+	<audio id="coffee_done" hidden="true" preload="auto">
+		<!--<source src="./audio/coffee_done.mp3" type="audio/mpeg">-->
+		<source src="./audio/coffee_done.wav" type="audio/wav">
+		<!--<source src="./audio/coffee_done.ogg" type="audio/ogg">-->
+	</audio>
+	<audio id="grinding" hidden="true" preload="auto">
+		<!--<source src="./audio/grinding.mp3" type="audio/mpeg">-->
+		<source src="./audio/grinding.wav" type="audio/wav">
+		<!--<source src="./audio/grinding.ogg" type="audio/ogg">-->
+	</audio>
+	<audio id="pouring" hidden="true" preload="auto" loop="true">
+		<!--<source src="./audio/pouring.mp3" type="audio/mpeg">-->
+		<source src="./audio/pouring.wav" type="audio/wav">
+		<!--<source src="./audio/pouring.ogg" type="audio/ogg">-->
+	</audio>
+	<audio id="spilling" hidden="true" preload="auto">
+		<!--<source src="./audio/spilling.mp3" type="audio/mpeg">-->
+		<source src="./audio/spilling.wav" type="audio/wav">
+		<!--<source src="./audio/spilling.ogg" type="audio/ogg">-->
+	</audio>
+	<audio id="waterdripping" hidden="true" preload="auto" loop="true">
+		<!--<source src="./audio/waterdripping.mp3" type="audio/mpeg">-->
+		<source src="./audio/waterdripping.wav" type="audio/wav">
+		<!--<source src="./audio/waterdripping.ogg" type="audio/ogg">-->
+	</audio>
 </body>
 </html>

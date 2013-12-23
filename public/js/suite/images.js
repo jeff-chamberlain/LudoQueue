@@ -11,6 +11,13 @@ var sources = {
 	maker : '/images/maker.png',
 	pot : '/images/pot.png',
 	reflec : '/images/pot_reflection.png',
+	overflow : '/images/overflow.png',
+	hand_arrows : '/images/hand_arrows.png',
+	hand_tap : '/images/hand_tap.png',
+	hand_tap_phone : '/images/hand_tap_phone.png',
+	hand_tap_finger : '/images/hand_tap_finger.png',
+	hand_pour : '/images/hand_pour.png',
+	hand_pour_tap : '/images/hand_pour_tap.png',
 };
 
 function loadImages(callback) {

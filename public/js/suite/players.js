@@ -1,8 +1,9 @@
 var players = {},
 	player_count = 0;
 
-function player(new_name) {
+function player(new_name,new_id) {
 	this.name = new_name;
+	this.id = new_id;
 	
 	var r = Math.floor(Math.random()*225+20);
 	var g = Math.floor(Math.random()*225+20);
@@ -13,14 +14,14 @@ function player(new_name) {
 	this.tiltLR = 0;
 	
 	this.surfer = new create_surfer(this.color, this.name);
-	this.balancer = new create_balancer(this.color, this.name);
-	this.racer = new create_racer(this.color, this.name);
+	this.balancer = new create_balancer(this.color, this.name, this.id);
+	this.racer = new create_racer(this.color, this.name, this.id);
 	
 	var update_wait = function() {};
 	
 	var update_surf = function() {
 		this.surfer.vx = (this.tiltFB / 5);
-		this.surfer.vy = (this.tiltLR / 5);
+		this.surfer.vy = (-this.tiltLR / 5);
 	}
 	
 	var update_balance = function() {

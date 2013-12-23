@@ -1,6 +1,11 @@
 function xLerp( v0, v1, t ) {
 	return (v0*(1-t))+ (v1*t);
 }
+function xyLerp( x0, x1, y0, y1, t ) {
+	var x00 = (x0*(1-t))+ (x1*t);
+	var y00 = (y0*(1-t))+ (y1*t);
+	return {'x': x00, 'y':y00};
+}
 
 function create_grid( w, h, num ) {
 	var wid = w;
@@ -33,4 +38,41 @@ function create_grid( w, h, num ) {
 		var ret = { 'x':x, 'y':y, 'max':space_hig-10 };
 		return ret;
 	}
+}
+function timed_manager(this_func_array,callback) {
+	var func_array = this_func_array;
+	var interim_time = 0;
+	var index = -1;
+	var cur_length;
+	var cur_interim;
+	this.run = function() {
+		if(index == -1) {
+			interim_time = Date.now();
+			index = 0;
+			func_array[0].start();
+			cur_length = func_array[0].length;
+			cur_interim = func_array[0].interim;
+		}
+		var t = (Date.now() - interim_time)/cur_length;
+		if(t>1) {
+			index++;
+			if(index >= func_array.length) {
+				callback();
+			}
+			else {
+				interim_time = Date.now();
+				func_array[index].start();
+				cur_length = func_array[index].length;
+				cur_interim = func_array[index].interim;
+			}
+		}
+		else {
+			cur_interim(t);
+		}
+	}
+}
+function timed_func(this_length,this_start,this_interim) {
+	this.length = this_length;
+	this.start = this_start;
+	this.interim = this_interim;
 }

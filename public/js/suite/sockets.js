@@ -2,23 +2,25 @@ var socket;
 
 function create_sockets() {
 
-	socket = io.connect('http://localhost:8080/suite');//https://ludosuite.jit.su/suite');
+	socket = io.connect('https://ludosuite.jit.su/suite');http://localhost:8080/suite');
 	
 	socket.on('player_enter', function (data) {
-		players[data.id] = new player(data.name);
-		player_count ++;
-		console.log("Player " + data.name + " connected on " + data.id + ". There are now " + player_count + " players");
-		var player_state;
-		var waiting_message;
-		if(game_state == "surf") {
-			player_state = "surfing";
-			waiting_message = "";
+		if( !players.hasOwnProperty(data.id) ) {
+			players[data.id] = new player(data.name,data.id);
+			player_count ++;
+			console.log("Player " + data.name + " connected on " + data.id + ". There are now " + player_count + " players");
+			var player_state;
+			var waiting_message;
+			if(game_state == "surf") {
+				player_state = "surfing";
+				waiting_message = "";
+			}
+			else {
+				player_state = "waiting";
+				waiting_message = "Will connect after minigame completes";
+			}
+			socket.emit('player_in_game',{id:data.id, color:players[data.id].color, state:player_state, message:waiting_message});
 		}
-		else {
-			player_state = "waiting";
-			waiting_message = "Will connect after minigame completes";
-		}
-		socket.emit('player_in_game',{id:data.id, color:players[data.id].color, state:player_state, message:waiting_message});
 	});
 	
 	

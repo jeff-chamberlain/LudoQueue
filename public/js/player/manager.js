@@ -1,10 +1,12 @@
 var	game,
 	game_interval,
+	game_running,
 	name,
+	id,
 	logged_in;
 
 jQuery(document).ready( function() {
-	loadImages( function(){
+	loadAssets(function() {
 		game = new game_maker();
 		game.init();
 		game.change_state("waiting");
@@ -13,7 +15,6 @@ jQuery(document).ready( function() {
 });
 
 function game_maker() {
-	
 	this.sockets = new create_sockets();
 	this.input = new create_input();
 	this.draw = new create_draw();

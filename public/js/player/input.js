@@ -2,6 +2,7 @@ var tiltLR = 0,
     tiltFB = 0,
     tiltQ = 0,
     taps = 0,
+    driptime = 0,
     diff = 2,
     sent_tilt = {lr:0,fb:0},
     login_timeout;
@@ -9,7 +10,6 @@ var tiltLR = 0,
 function create_input() {
 	
 	this.init = function() {
-	
 		$('#start_form').submit(function(event){
 			event.preventDefault();
 			game.overlay.fadeOutOver();
@@ -28,6 +28,13 @@ function create_input() {
 		$('#touch_area').on('touchend mouseup touchcancel', function(e) {
 			e.preventDefault();
 			taps ++;
+		});
+		
+		$('#start_name').on('touchstart mousedown', function(e) {
+			if(!audio_loaded) {
+				pAudio.load();
+				audio_loaded = true;
+			}
 		});
 	};
 	
@@ -64,24 +71,43 @@ function create_input() {
 		if(taps > 0) {
 			socket.emit('pulse');
 			taps = 0;
+			playAudio(audio.grinding);
 		}
 	};
 	
 	var racing = function() {
-		if(taps > 0) {
-			socket.emit('tap');
-			taps = 0;
+		if(game_running) {
+			if(taps > 0) {
+				socket.emit('tap');
+				taps = 0;
+				driptime = Date.now();
+				if(pAudio.paused == true) {
+					playAudio(audio.waterdripping,true);
+				}
+			}
+			if( Date.now() - driptime >= 1000 ) {
+				pAudio.pause();
+			}
 		}
 	};
 	
 	var balancing = function() {
-		if( judgeDiff(tiltFB,sent_tilt.fb) ) {
-			sent_tilt.fb = tiltFB;
-			socket.emit('tilt',sent_tilt);
-		}
-		if(taps > 0) {
-			socket.emit('pulse');
-			taps = 0;
+		if(game_running) {
+			if( judgeDiff(tiltFB,sent_tilt.fb) ) {
+				sent_tilt.fb = tiltFB;
+				socket.emit('tilt',sent_tilt);
+				if(pAudio.paused == true && tiltFB*(Math.PI/180)<0) {
+					playAudio(audio.pouring,true);
+				}
+				else if(pAudio.paused != true && tiltFB*(Math.PI/180)>=0) {
+					pAudio.pause();
+				}
+			}
+			if(taps > 0) {
+				socket.emit('pulse');
+				playAudio(audio.changing_cup,false);
+				taps = 0;
+			}
 		}
 	};
 	
