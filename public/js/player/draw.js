@@ -63,7 +63,7 @@ function create_draw() {
 	
 	this.spinner = new create_spinner();
 	
-	this.waiting_message = 'Please enter your name';
+	this.waiting_message = 'Please sign in';
 	var waiting_message_time = Date.now();
 	
 	var waiting = function() {
@@ -186,7 +186,7 @@ function show_disp() {
 	ctx.strokeText(name,W/2,H/2-20);
 	ctx.fillStyle = 'white';
 	ctx.fillText(name,W/2,H/2-20);
-	wrapText("Turn your volume up!",W/2,0,W,45);
+	//wrapText("Turn your volume up!",W/2,0,W,45);
 }
 
 function wrapText(text, x, y, maxWidth, lineHeight) {

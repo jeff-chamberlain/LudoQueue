@@ -12,11 +12,7 @@ function create_input() {
 	this.init = function() {
 		$('#start_form').submit(function(event){
 			event.preventDefault();
-			game.overlay.fadeOutOver();
-			name = $('#start_name').val();
-			socket.emit('enter',name);
-			login_timeout = setTimeout(retryLogin,3000);
-			game.draw.waiting_message = "Waiting for game server";
+			login( $('#start_name').val() );
 		});
 		
 		window.addEventListener('deviceorientation', function(eventData) {
@@ -112,6 +108,20 @@ function create_input() {
 	};
 	
 	this.state = waiting;
+}
+
+function login(this_name, this_email) {
+		$('#start_name').val(this_name);
+		game.overlay.fadeOutOver();
+		name = this_name;
+		email = this_email;
+		login_data = {
+			name : name,
+			email : email
+		}
+		socket.emit('enter',login_data);
+		login_timeout = setTimeout(retryLogin,3000);
+		game.draw.waiting_message = "Waiting for game server";
 }
 
 function retryLogin() {

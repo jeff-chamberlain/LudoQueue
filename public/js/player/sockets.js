@@ -1,7 +1,7 @@
 var socket;
 
 function create_sockets() {
-	socket = io.connect('https://ludosuite.jit.su/player');//http://192.168.1.117:8080/player');
+	socket = io.connect('https://ludosuite.jit.su/player');//http://192.168.2.10:8080/player');
 	
 	socket.on('game_entered',function(data) {
 		logged_in = true;

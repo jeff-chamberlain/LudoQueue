@@ -2,13 +2,14 @@ var socket;
 
 function create_sockets() {
 
-	socket = io.connect('https://ludosuite.jit.su/suite');http://localhost:8080/suite');
+	socket = io.connect('https://ludosuite.jit.su/suite');//http://localhost:8080/suite');
 	
 	socket.on('player_enter', function (data) {
 		if( !players.hasOwnProperty(data.id) ) {
 			players[data.id] = new player(data.name,data.id);
 			player_count ++;
 			console.log("Player " + data.name + " connected on " + data.id + ". There are now " + player_count + " players");
+			console.log( data.name + "'s email is " + data.email );
 			var player_state;
 			var waiting_message;
 			if(game_state == "surf") {

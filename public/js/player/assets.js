@@ -77,5 +77,9 @@ function playAudio(src,loop) {
 		pAudio.currentTime = cur_audio.start;
 		pAudio.play();
 		audio_loop = loop;
+		console.log("Audio playable");
+	}
+	else {
+		console.log( "Audio can't play" );
 	}
 }

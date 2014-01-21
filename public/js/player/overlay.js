@@ -22,7 +22,7 @@ function create_overlay() {
 		this.menu[0].style.top = H/2+'px';
 		this.menu.show();
 		over_div.fadeIn(3000);
-		game.draw.waiting_message = "Please enter your name";
+		game.draw.waiting_message = "Please sign in";
 	};
 	this.fadeOutOver = function() {
 		if(this.menu != null && last_over != '' ) {
