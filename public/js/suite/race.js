@@ -6,12 +6,17 @@ var race_begun,
 	race_winner_color,
 	racers = [],
 	pre_race,
-	tap_goal = 1;
+	tap_goal = 200;
 
 var race = function() {
 	ctx.globalCompositeOperation = "source-over";
 	ctx.drawImage(images.g2_bg,0,0,W,H);
-	
+	ctx.save();
+	ctx.scale(W/1920,H/1080);
+	ctx.drawImage(images.g2_scenery1,1370,559);
+	ctx.drawImage(images.g2_scenery2,74,627);
+	ctx.drawImage(images.g2_scenery3,751,474);
+	ctx.restore();
 	for( var id in players ) {
 		if(racers.indexOf(id) != -1) {
 			var r = players[id].racer;

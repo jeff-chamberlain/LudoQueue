@@ -12,6 +12,13 @@ var balancers = [],
 var balance = function() {
 	ctx.globalCompositeOperation = "source-over";
 	ctx.drawImage(images.g3_bg,0,0,W,H);
+	ctx.save();
+	ctx.scale(W/1920,H/1080);
+	ctx.drawImage(images.g3_scenery1,-143,506);
+	ctx.drawImage(images.g3_scenery2,1224,341);
+	ctx.drawImage(images.g3_scenery3,414,766);
+	ctx.drawImage(images.g3_scenery4,1248,815);
+	ctx.restore();
 	for(var i=0;i<wall.length;i++) {
 		wall[i].draw();
 	}

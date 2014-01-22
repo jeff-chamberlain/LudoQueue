@@ -26,12 +26,12 @@ function create_input() {
 			taps ++;
 		});
 		
-		$('#start_name').on('touchstart mousedown', function(e) {
+		/*$('#start_name').on('touchstart mousedown', function(e) {
 			if(!audio_loaded) {
 				pAudio.load();
 				audio_loaded = true;
 			}
-		});
+		});*/
 	};
 	
 	this.play = function() { this.state() };
@@ -111,17 +111,19 @@ function create_input() {
 }
 
 function login(this_name, this_email) {
-		$('#start_name').val(this_name);
 		game.overlay.fadeOutOver();
-		name = this_name;
-		email = this_email;
-		login_data = {
-			name : name,
-			email : email
+		if( game.state == 'waiting' ) {
+			$('#start_name').val(this_name);
+			name = this_name;
+			email = this_email;
+			login_data = {
+				name : name,
+				email : email
+			}
+			socket.emit('enter',login_data);
+			login_timeout = setTimeout(retryLogin,3000);
+			game.draw.waiting_message = "Waiting for game server";
 		}
-		socket.emit('enter',login_data);
-		login_timeout = setTimeout(retryLogin,3000);
-		game.draw.waiting_message = "Waiting for game server";
 }
 
 function retryLogin() {

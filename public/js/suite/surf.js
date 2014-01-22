@@ -7,19 +7,25 @@ var surfers = {},
 	prev_level = 0,
 	next_level = 0,
 	snow_time,
-	snow_target = 1;
+	snow_target = 20;
 	
 var surf = function() {
 	ctx.globalCompositeOperation = "source-over";
 	ctx.drawImage(images.g1_bg,0,0,W,H);
+	ctx.save();
 	//ctx.drawImage(images.hand_arrows,(W/2)-300,0,300,300);
 	//ctx.drawImage(images.hand_tap,W/2,0,300,300);
+	ctx.scale(W/1920,H/1080);
 	if(snow_level < next_level) {
 		var t = (Date.now()-ground_time)/1000;
 		snow_level = xLerp(prev_level,next_level,t);
 	}
-	snow_y = xLerp(150,H,snow_level/snow_target)
-	ctx.drawImage(images.g1_bg_snow,0,H-snow_y,W,snow_height);
+	snow_y = xLerp(260,1080,snow_level/snow_target)
+	ctx.drawImage(images.g1_bg_snow,0,0,1920,snow_y,0,1080-snow_y,1920,snow_y);
+	ctx.drawImage(images.g1_scenery1,257,768);
+	ctx.drawImage(images.g1_scenery2,1166,505);
+	ctx.drawImage(images.g1_scenery3,655,768);
+	ctx.restore();
 	for(var i=balls.length-1;i>=0;i--)
 	{
 		balls[i].draw();
@@ -44,8 +50,8 @@ var surf_init = function() {
 	snow_level = 0;
 	next_level = 0;
 	prev_level = 0;
-	snow_y = H*0.24;
-	snow_height = (images.g1_bg_snow.height/images.g1_bg_snow.width)*W;
+	snow_y = 260;
+	//snow_height = (images.g1_bg_snow.height/images.g1_bg_snow.width)*W;
 	for(var i=0;i<ball_count;i++) {
 		var ball = new create_ball();
 		balls.push(ball);
@@ -57,8 +63,16 @@ var surf_init = function() {
 function create_surfer(col,nam) {
 	var x = Math.random()*W;
 	var y = Math.random()*H;
-	var width = images.g1_player.width;
-	var height = images.g1_player.height;
+	
+	var surf_image;
+	if( Math.random() < 0.5 ) {
+		surf_image = images.g1_player1;
+	}
+	else {
+		surf_image = images.g1_player2;
+	}
+	var width = surf_image.width;
+	var height = surf_image.height;
 	
 	this.vx = 0;
 	this.vy = 0;
@@ -84,7 +98,7 @@ function create_surfer(col,nam) {
 			var timeDiff = Date.now()-pulse_time;
 			var rot = (2*Math.PI) - ((timeDiff/0.5)%(2*Math.PI));
 			ctx.rotate(rot);
-			ctx.drawImage(images.g1_player,-(width/2),-(height/2),100,100);
+			ctx.drawImage(surf_image,-(width/2),-(height/2),100,100);
 			ctx.restore();
 			if(timeDiff >= 1000) {
 				pulse_draw = false;
@@ -101,7 +115,7 @@ function create_surfer(col,nam) {
 			}
 		}
 		else {
-			ctx.drawImage(images.g1_player,x-(width/2),y-(height/2),100,100);
+			ctx.drawImage(surf_image,x-(width/2),y-(height/2),100,100);
 		}
 		
 		ctx.beginPath();

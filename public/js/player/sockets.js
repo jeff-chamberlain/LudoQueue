@@ -46,6 +46,7 @@ function create_sockets() {
 	});
 	socket.on('err',function(message) {
 		logged_in = false;
+		clearTimeout(login_timeout);
 		$('#err_text').html(message);
 		game.change_state('waiting');
 		game.overlay.fadeInOver('start');

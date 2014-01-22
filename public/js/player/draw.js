@@ -23,6 +23,8 @@ function create_draw() {
 	this.init = function() {
 		canvas.width = W;
 		canvas.height = H;
+		ctx.fillStyle = "rgb(255, 255, 255)";
+		ctx.fillRect(0, 0, W, H);
 	};
 	
 	this.play = function() {
@@ -49,16 +51,16 @@ function create_draw() {
 				new_state = balancing;
 				break;
 		}
-		if( this.state == transition ) {
-			this.temp_state = function(){};
+		if( this.state == waiting || new_state == waiting ) {
+			this.temp_state = this.state;
+			transition_time = Date.now();
+			transition_down = false;
+			transition_alph = 0;
+			this.state = transition;
 		}
 		else {
-			this.temp_state = this.state;
+			this.state = new_state;
 		}
-		transition_time = Date.now();
-		transition_down = false;
-		transition_alph = 0;
-		this.state = transition;
 	};
 	
 	this.spinner = new create_spinner();
@@ -68,40 +70,36 @@ function create_draw() {
 	
 	var waiting = function() {
 		ctx.globalCompositeOperation = "source-over";
-		ctx.fillStyle = "rgba(0, 0, 0, 0.08)";
+		ctx.fillStyle = "rgba(255, 255, 255, 0.08)";
 		ctx.fillRect(0, 0, W, H);
-		ctx.globalCompositeOperation = "lighter";
-		this.spinner.draw(W/2, H-15);
-		
-		if(Date.now() - waiting_message_time < 2000 ) {
-			ctx.font = '40px Calibri';
-			ctx.textAlign = 'center';
-			ctx.textBaseline = 'top';
-			ctx.lineWidth = 4;
-			ctx.strokeStyle = 'black';
-			ctx.fillStyle = 'white';
-			wrapText(this.waiting_message, W/2, 50, W, 45);
-		}
-		else if(Date.now() - waiting_message_time > 4000 ) {
-			waiting_message_time = Date.now();
+		ctx.font = '40px Calibri';
+		ctx.textAlign = 'center';
+		ctx.textBaseline = 'top';
+		ctx.lineWidth = 4;
+		ctx.strokeStyle = 'white';
+		ctx.fillStyle = 'black';
+		wrapText(this.waiting_message, W/2, 50, W, 45);
+
+		if( !over_showing ) {
+			this.spinner.draw(W/2, H/2);
 		}
 
 	};
 	
 	var surfing = function() {
-		ctx.fillStyle = color;
+		ctx.fillStyle = "rgb(255, 255, 255)";
 		ctx.fillRect(0, 0, W, H);
 		show_disp();
 	};
 	
 	var racing = function() {
-		ctx.fillStyle = color;
+		ctx.fillStyle = "rgb(255, 255, 255)";
 		ctx.fillRect(0, 0, W, H);
 		show_disp();
 	};
 	
 	var balancing = function() {
-		ctx.fillStyle = color;
+		ctx.fillStyle = "rgb(255, 255, 255)";
 		ctx.fillRect(0, 0, W, H);
 		show_disp();
 	};
@@ -115,7 +113,7 @@ function create_draw() {
 			transition_alph += ( Date.now() - transition_time ) / 500;
 			this.temp_state();
 			ctx.globalCompositeOperation = "source-over";
-			ctx.fillStyle = "rgba(0, 0, 0, "+transition_alph+")";
+			ctx.fillStyle = "rgba(255, 255, 255, "+transition_alph+")";
 			ctx.fillRect(0, 0, W, H);
 			if( transition_alph >= 1 ) {
 				this.temp_state = new_state;
@@ -136,7 +134,7 @@ function create_draw() {
 				transition_alph -= ( Date.now() - transition_time ) / 500;
 				this.temp_state();
 				ctx.globalCompositeOperation = "source-over";
-				ctx.fillStyle = "rgba(0, 0, 0, "+transition_alph+")";
+				ctx.fillStyle = "rgba(255, 255, 255, "+transition_alph+")";
 				ctx.fillRect(0, 0, W, H);
 			}
 		}
@@ -147,45 +145,48 @@ function create_draw() {
 }
 
 function create_spinner() {
-	this.angle = 0;
-	this.rad = 5;
+	this.angle = Math.PI;
+	this.rad = 8;
 	this.last_time = Date.now();
 	
 	this.draw = function(X,Y) {
+		ctx.globalCompositeOperation = "darker";
 		ctx.beginPath();
 		var spin_x = X + Math.cos(this.angle)*this.rad;
 		var spin_y = Y + Math.sin(this.angle)*this.rad;
 		var gradient = ctx.createRadialGradient(spin_x, spin_y, 0, spin_x, spin_y, this.rad);
-		gradient.addColorStop(0, "white");
-		gradient.addColorStop(1, "black");
+		gradient.addColorStop(0, "rgb(0,83,149)");
+		gradient.addColorStop(1, "white");
 		ctx.fillStyle = gradient;
 		ctx.arc(spin_x, spin_y, this.rad, Math.PI*2, false);
 		ctx.fill();
 		ctx.closePath();
-		this.angle += ( ( Date.now() - this.last_time ) / 500 ) * Math.PI;
-		if( this.angle > Math.PI*2 ) {
-			this.angle -= Math.PI*2;
+		if( Date.now() - this.last_time < 500 ) {
+			this.angle += ( ( Date.now() - this.last_time ) / 500 ) * Math.PI;
+			if( this.angle > Math.PI*2 ) {
+				this.angle -= Math.PI*2;
+			}
 		}
 		this.last_time = Date.now();
 	};
 }
 function show_disp() {
 	if( H > W ) {
-		var logo_hig = W*(images.logo.height/images.logo.width);
-		ctx.drawImage(images.logo,0,(H/2)-(logo_hig/2),W,logo_hig);
+		var logo_hig = W*(images.dw_logo.height/images.dw_logo.width);
+		ctx.drawImage(images.dw_logo,0,(H/2)-(logo_hig/2),W,logo_hig);
 	}
 	else {
-		var logo_wid = H*(images.logo.width/images.logo.height);
-		ctx.drawImage(images.logo,(W/2)-(logo_wid/2),0,logo_wid,H);
+		var logo_wid = H*(images.dw_logo.width/images.dw_logo.height);
+		ctx.drawImage(images.dw_logo,(W/2)-(logo_wid/2),0,logo_wid,H);
 	}
 	ctx.font = '40px Calibri';
 	ctx.textAlign = 'center';
 	ctx.textBaseline = 'top';
 	ctx.lineWidth = 4;
 	ctx.strokeStyle = 'black';
-	ctx.strokeText(name,W/2,H/2-20);
-	ctx.fillStyle = 'white';
-	ctx.fillText(name,W/2,H/2-20);
+	ctx.strokeText(name,W/2,20);
+	ctx.fillStyle = color;
+	ctx.fillText(name,W/2,20);
 	//wrapText("Turn your volume up!",W/2,0,W,45);
 }
 

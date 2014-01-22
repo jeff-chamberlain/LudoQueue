@@ -1,6 +1,7 @@
 var overlayElems = ["start"],
 	over_div,
-	last_over;
+	last_over,
+	over_showing;
 
 function create_overlay() {
 	over_div = $('#overlay');
@@ -17,16 +18,18 @@ function create_overlay() {
 	};
 	
 	this.fadeInOver = function(over_name) {
+		over_showing = true;
 		last_over = over_name;
 		this.menu = $('#'+over_name+'_over');
 		this.menu[0].style.top = H/2+'px';
 		this.menu.show();
-		over_div.fadeIn(3000);
+		over_div.fadeIn(1000);
 		game.draw.waiting_message = "Please sign in";
 	};
 	this.fadeOutOver = function() {
+		over_showing = false;
 		if(this.menu != null && last_over != '' ) {
-			over_div.fadeOut(3000, function(){
+			over_div.fadeOut(1000, function(){
 				$('#'+last_over+'_menu').hide();
 				last_over = "";
 			});

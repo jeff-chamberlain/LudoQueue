@@ -13,7 +13,6 @@ var W,
 function Init() {
 	
 	create_sockets();
-
 	//Initializing the canvas
 	var canvas = document.getElementById("canvas");
 	ctx = canvas.getContext("2d");
@@ -24,7 +23,7 @@ function Init() {
 	canvas.height = H;
 	
 	loadImages( function(){
-		fake_players(5);
+		//fake_players(2);
 		game_state = "surf";
 		state = surf;
 		surf_init();

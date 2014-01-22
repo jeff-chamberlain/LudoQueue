@@ -35,7 +35,7 @@ var images = {},
 	audio_fully_loaded = false;
 	cur_audio = audio.bell_chime,
 	iSources = {
-		logo: '/images/cblogo.png',
+		dw_logo: '/images/dw/dw_logo.png',
 	};
 	
 var audio_handler = function() {
