@@ -6,11 +6,11 @@ var race_begun,
 	race_winner_color,
 	racers = [],
 	pre_race,
-	tap_goal = 200;
+	tap_goal = 1;
 
 var race = function() {
 	ctx.globalCompositeOperation = "source-over";
-	ctx.drawImage(images.bg,0,0,W,H);
+	ctx.drawImage(images.g2_bg,0,0,W,H);
 	
 	for( var id in players ) {
 		if(racers.indexOf(id) != -1) {
@@ -59,67 +59,69 @@ var race_init = function() {
 }
 
 function create_racer(col,nam,pId) {
-	var home_x = 0;
-	var home_y = 0;
-	var rat = 0;
-	
-	var maker_x = 0;
-	var maker_y = 0;
-	var maker_wid = 0;
-	var maker_hig = 0;
-	var reflec_wid = 0;
-	var reflec_hig = 0;
+	var home_x;
+	var home_y;
+	var space_height;
+	var target_image;
+	var target_size;
 	
 	var tap_count = 0;
 	
 	var name = nam;
 	var color = col;
 	var id = pId;
-	
 	color.a = 1;
 	
-	var drips = [];
-	
-	var time = Date.now();
+	var balls = [];
 	
 	this.is_pre = false;
 	
 	this.set_values = function(this_x,this_y,this_hig) {
 		home_x = this_x;
 		home_y = this_y;
-		
-		maker_hig = this_hig;
-		maker_wid = maker_hig * (images.maker.width/images.maker.height);
-		
-		rat = maker_hig/images.maker.height;
-		
-		reflec_wid = images.reflec.width*rat;
-		reflec_hig = images.reflec.height*rat;
-		
-		maker_x = home_x-(maker_wid/2);
-		maker_y = home_y-(maker_hig/2);
+		space_height = this_hig;
+		target_size = (3*space_height)/4;
+
+		var rand = Math.floor(Math.random()*5);
+        switch(rand) {
+                case 0:
+                        target_image = images.g2_prop1;
+                        break;
+                case 1:
+                        target_image = images.g2_prop2;
+                        break;
+                case 2:
+                        target_image = images.g2_prop3;
+                        break;
+                case 3:
+                        target_image = images.g2_prop4;
+                        break;
+                default:
+                        target_image = images.g2_prop5;
+                        break;
+        }
 		
 		tap_count = 0;
-		drips = [];
+		balls = [];
 	}
 	
 	this.draw = function() {
-		for(var i=drips.length-1;i>=0;i--) {
-			drips[i].draw();
+		ctx.fillStyle="rgba(255,255,255,.75)";
+		ctx.fillRect(home_x-(space_height/2),home_y-(space_height/2),space_height,space_height);
+		ctx.drawImage(target_image,home_x-(target_size/2),home_y-(space_height/2),target_size,target_size);
+		var perc = tap_count/tap_goal;
+		ctx.drawImage(images.g2_snow_pile,0,0,300,225*perc,home_x-(space_height/2),home_y+(space_height/4)-(target_size*perc),space_height,target_size*perc);
+		for(var i=balls.length-1;i>=0;i--) {
+			balls[i].draw();
 		}
-		ctx.drawImage(images.maker,maker_x,maker_y,maker_wid,maker_hig);
-		if(!this.is_pre) {
-			this.drawFill(tap_count/tap_goal);
-		}
-		ctx.drawImage(images.reflec,maker_x+(37*rat),maker_y+(260*rat),reflec_wid,reflec_hig);
-		ctx.font = (40*rat)+'pt Calibri';
+		ctx.font = (space_height/5)+'px	 Calibri';
 		ctx.textAlign = 'center';
 		ctx.textBaseline = 'top';
 		ctx.strokeStyle = 'black';
-		ctx.lineWidth = 6*rat;
-		ctx.strokeText(name,home_x+(20*rat),home_y-(180*rat));
+		ctx.lineWidth = space_height/32;
+		ctx.strokeText(name,home_x,home_y+(space_height)/4);
 		ctx.fillStyle = color.is();
-		ctx.fillText(name,home_x+(20*rat),home_y-(180*rat));
+		ctx.fillText(name,home_x,home_y+(space_height)/4);
 	}
 	
 	this.tap = function() {
@@ -128,59 +130,34 @@ function create_racer(col,nam,pId) {
 			if(tap_count>=tap_goal && !race_over) {
 				race_over = true;
 				race_winner = name;
-				race_winner_color = color;
+				race_winner_color = color.is();
 				race_win_time = Date.now();
 				socket.emit('game_end',id);
 			}
-			var drip = new create_drip();
-			drips.push(drip);
+			var ball = new create_ball();
+			balls.push(ball);
 		}
 	}
-	this.drawFill = function(perc) {
-		if(perc>1) {
-			perc=1;
-		}
-		ctx.save();
-		ctx.transform(rat,0,0,rat,home_x-(445*rat),home_y-(325*rat));
-		var grd = ctx.createLinearGradient(0,480,0,356);
-		grd.addColorStop(0,"#4c2a0b");
-		grd.addColorStop(perc,"#4c2a0b");
-		grd.addColorStop(perc,"rgba(0,0,0,0)");
-		grd.addColorStop(1,"rgba(0,0,0,0)");
-		ctx.fillStyle = grd;
-		ctx.beginPath();
-		ctx.moveTo(335.61,360.293);
-		ctx.bezierCurveTo(335.61,360.293,310.555,402.862,312.379,421.714);
-		ctx.bezierCurveTo(314.204,440.567,319.074,473.946,381.103,480.67);
-		ctx.bezierCurveTo(442.523,481.617,464.918,448.21500000000003,463.809,422.322);
-		ctx.bezierCurveTo(462.69800000000004,396.43,441.079,360.293,441.079,360.293);
-		ctx.lineTo(438.11400000000003,356.903);
-		ctx.bezierCurveTo(438.11400000000003,356.903,433.77000000000004,367.558,389.235,367.558);
-		ctx.bezierCurveTo(349.629,367.558,337.13100000000003,358.08,337.13100000000003,358.08);
-		ctx.lineTo(335.61,360.293);
-		ctx.closePath();
-		ctx.fill();
-		ctx.restore();
-	}
-	function create_drip() {
-		var drip_x = home_x-(55*rat);
-		var drip_y = home_y;
-		var drip_rad = 4*rat;
-		var drip_time = Date.now();
+	function create_ball() {
+		var rand_angle = Math.random()*(2*Math.PI);
+		var start_x = home_x+((target_size/2)*Math.cos(rand_angle));
+		var start_y = (home_y-(space_height/8)+((target_size/2)*Math.sin(rand_angle)));
+		var create_time = Date.now();
 		
 		this.draw = function() {
-			ctx.beginPath();
-			ctx.fillStyle = 'black';
-			ctx.arc(drip_x, drip_y, drip_rad, Math.PI*2, false);
-			ctx.fill();
-			
-			drip_y += ((Date.now()-drip_time)/5000)*(150*rat);
-			
-			if(drip_y >= home_y + (150*rat)) {
-				var index = drips.indexOf(this);
+			var t = (Date.now()-create_time)/500;
+			if(t>=1) {
+				var index = balls.indexOf(this);
 				if(index != -1) {
-					drips.splice(index,1);
+					balls.splice(index,1);
 				}
+			}
+			else {
+				var x = xLerp(start_x,home_x,t);
+				var y = xLerp(start_y,home_y-(space_height/4),t);
+				var size = xLerp((space_height/4),(space_height/10),t);
+				ctx.beginPath();
+				ctx.drawImage(images.g1_ball,x-(size/2),y-(size/2),size,size);
 			}
 		}
 	}
@@ -194,7 +171,7 @@ function create_pre_race() {
 	var finger_offset = 0;
 	var pre_title = 'Tap your phone to make coffee!';
 	var pre_race_array = [
-		new timed_func(1000, function(){}, function(t){}),
+		new timed_func(1000, function(){}, function(t){})/*,
 		new timed_func(1000, function(){}, function(t){
 			finger_offset = xLerp(0,50,1-Math.pow((2*t)-1,2));
 		}),
@@ -271,7 +248,7 @@ function create_pre_race() {
 		}, function(t){}),
 		new timed_func(1000, function(){
 			pre_title = 'GO!';
-		}, function(t){}),
+		}, function(t){}),*/
 ];
 	var pre_race_manager = new timed_manager(pre_race_array,function(){ 
 			race_begun=true;
@@ -279,10 +256,9 @@ function create_pre_race() {
 		});
 	this.draw = function() {
 		pre_race_manager.run();
-		ctx.fillStyle="rgba(255,255,255,.95)";
+		/*ctx.fillStyle="rgba(255,255,255,.95)";
 		ctx.fillRect((W/4),(H/4),W/2,H/2);
 		pre_racer.draw();
-		pre_racer.drawFill(pre_perc);
 		ctx.drawImage(images.hand_tap_phone,(W/2)-(H/3),H/3,H/3,H/3);
 		ctx.drawImage(images.hand_tap_finger,(W/2)-(H/3),H/3-finger_offset,H/3,H/3);
 		ctx.font = '40pt Calibri';
@@ -292,6 +268,6 @@ function create_pre_race() {
 		ctx.lineWidth = 6;
 		ctx.strokeText(pre_title,W/2,H/4+10);
 		ctx.fillStyle = 'white';
-		ctx.fillText(pre_title,W/2,H/4+10);
+		ctx.fillText(pre_title,W/2,H/4+10);*/
 	}
 }

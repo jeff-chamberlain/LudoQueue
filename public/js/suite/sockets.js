@@ -2,7 +2,7 @@ var socket;
 
 function create_sockets() {
 
-	socket = io.connect('https://ludosuite.jit.su/suite');//http://localhost:8080/suite');
+	socket = io.connect('http://localhost:8080/suite');//https://ludosuite.jit.su/suite');
 	
 	socket.on('player_enter', function (data) {
 		if( !players.hasOwnProperty(data.id) ) {

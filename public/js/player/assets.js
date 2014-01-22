@@ -39,22 +39,22 @@ var images = {},
 	};
 	
 var audio_handler = function() {
-	if (this.currentTime >= cur_audio.start + cur_audio.length) {
+	/*if (this.currentTime >= cur_audio.start + cur_audio.length) {
 		if(audio_loop) {
 			this.currentTime = cur_audio.start;
 		}
 		else {
 			this.pause();
 		}
-    }
+    }*/
 }
 
 function loadAssets(callback) {
-	pAudio = document.getElementById("pAudio");
-	pAudio.addEventListener('timeupdate', audio_handler, false);
-	pAudio.addEventListener('canplaythrough', function() {
+	//pAudio = document.getElementById("pAudio");
+	//pAudio.addEventListener('timeupdate', audio_handler, false);
+	/*pAudio.addEventListener('canplaythrough', function() {
 		audio_fully_loaded = true;
-	}, false);
+	}, false);*/
 	var loadedImages = 0;
 	var numImages = 0;
 	// get num of sources
@@ -72,7 +72,7 @@ function loadAssets(callback) {
 	}
 }
 function playAudio(src,loop) {
-	if(audio_fully_loaded) {
+	/*if(audio_fully_loaded) {
 		cur_audio = src;
 		pAudio.currentTime = cur_audio.start;
 		pAudio.play();
@@ -81,5 +81,5 @@ function playAudio(src,loop) {
 	}
 	else {
 		console.log( "Audio can't play" );
-	}
+	}*/
 }

@@ -1,51 +1,54 @@
 var surfers = {},
-	beans = [],
-	bean_count = 20,
-	grounds_level = 0,
+	balls = [],
+	ball_count = 20,
+	snow_level = 0,
+	snow_y = 0,
+	snow_height = 0,
 	prev_level = 0,
 	next_level = 0,
-	ground_time,
-	grounds_target = 40;
+	snow_time,
+	snow_target = 1;
 	
 var surf = function() {
 	ctx.globalCompositeOperation = "source-over";
-	ctx.drawImage(images.bg,0,0,W,H);
-	ctx.drawImage(images.hand_arrows,(W/2)-300,0,300,300);
-	ctx.drawImage(images.hand_tap,W/2,0,300,300);
-	if(grounds_level < next_level) {
+	ctx.drawImage(images.g1_bg,0,0,W,H);
+	//ctx.drawImage(images.hand_arrows,(W/2)-300,0,300,300);
+	//ctx.drawImage(images.hand_tap,W/2,0,300,300);
+	if(snow_level < next_level) {
 		var t = (Date.now()-ground_time)/1000;
-		grounds_level = xLerp(prev_level,next_level,t);
+		snow_level = xLerp(prev_level,next_level,t);
 	}
-	var grounds_y = (grounds_level/grounds_target)*H;
-	var grounds_height = (images.grounds.height/images.grounds.width)*W;
-	ctx.drawImage(images.grounds,0,H-grounds_y,W,grounds_height);
+	snow_y = xLerp(150,H,snow_level/snow_target)
+	ctx.drawImage(images.g1_bg_snow,0,H-snow_y,W,snow_height);
+	for(var i=balls.length-1;i>=0;i--)
+	{
+		balls[i].draw();
+	}
 	for(var id in players)
 	{
 		var s = players[id].surfer;
 		s.draw();
 	}
-	for(var i=beans.length-1;i>=0;i--)
-	{
-		beans[i].draw();
+	var ballDiff = ball_count - balls.length;
+	for(var i=0;i<ballDiff;i++) {
+		var ball = new create_ball();
+		balls.push(ball);
 	}
-	var beanDiff = bean_count - beans.length;
-	for(var i=0;i<beanDiff;i++) {
-		var bean = new create_bean();
-		beans.push(bean);
-	}
-	if(grounds_level >= grounds_target && game_state == 'surf') {
+	if(snow_level >= snow_target && game_state == 'surf') {
 		change_state("race");
 	}
 }
 
 var surf_init = function() {
 	console.log('surf init');
-	grounds_level = 0;
+	snow_level = 0;
 	next_level = 0;
 	prev_level = 0;
-	for(var i=0;i<bean_count;i++) {
-		var bean = new create_bean();
-		beans.push(bean);
+	snow_y = H*0.24;
+	snow_height = (images.g1_bg_snow.height/images.g1_bg_snow.width)*W;
+	for(var i=0;i<ball_count;i++) {
+		var ball = new create_ball();
+		balls.push(ball);
 	}
 	socket.emit('game_state_change','surfing');
 }
@@ -54,8 +57,8 @@ var surf_init = function() {
 function create_surfer(col,nam) {
 	var x = Math.random()*W;
 	var y = Math.random()*H;
-	var width = images.grinder.width;
-	var height = images.grinder.height;
+	var width = images.g1_player.width;
+	var height = images.g1_player.height;
 	
 	this.vx = 0;
 	this.vy = 0;
@@ -81,22 +84,24 @@ function create_surfer(col,nam) {
 			var timeDiff = Date.now()-pulse_time;
 			var rot = (2*Math.PI) - ((timeDiff/0.5)%(2*Math.PI));
 			ctx.rotate(rot);
-			ctx.drawImage(images.grinder,-(width/2),-(height/2),100,100);
+			ctx.drawImage(images.g1_player,-(width/2),-(height/2),100,100);
 			ctx.restore();
 			if(timeDiff >= 1000) {
 				pulse_draw = false;
 			}
-			for(var i=beans.length-1;i>=0;i--) {
-				var bean = beans[i];
-				var dist = Math.pow(x-bean.x,2)+Math.pow(y-bean.y,2);
-				if( dist < 2500) {
-					bean.ground = true;
-					break;
+			for(var i=balls.length-1;i>=0;i--) {
+				var ball = balls[i];
+				if( !ball.finished ) {
+					var dist = Math.pow(x-ball.x,2)+Math.pow(y-ball.y,2);
+					if( dist < 2500) {
+						ball.hit = true;
+						break;
+					}
 				}
 			}
 		}
 		else {
-			ctx.drawImage(images.grinder,x-(width/2),y-(height/2),100,100);
+			ctx.drawImage(images.g1_player,x-(width/2),y-(height/2),100,100);
 		}
 		
 		ctx.beginPath();
@@ -124,83 +129,105 @@ function create_surfer(col,nam) {
 	
 }
 
-function create_bean() {
-	this.ground = false;
-	this.x = Math.random()*W;
-	this.y = -30-(Math.random()*H);
-	var drawTime = Date.now();
-	var rand = Math.floor(Math.random()*4);
-	var beanImg;
-	switch(rand) {
-		case 0:
-			beanImg = images.bean1;
-			break;
-		case 1:
-			beanImg = images.bean2;
-			break;
-		case 2:
-			beanImg = images.bean3;
-			break;
-		default:
-			beanImg = images.bean4;
-			break;
-	}
-	var width = beanImg.width;
-	var height = beanImg.height;
+function create_ball() {
+	this.hit = false;
+	this.finished = false;
 	
-	var grinds = [];
-	var grind_time = 0;
+	var create_time = Date.now();
+	var ball_image = images.g1_ball;
+	var total_width = ball_image.width;
+	var total_height = ball_image.height;
+	var start_width = total_width * 0.1;
+	var start_height = total_height * 0.1;
+	var width = start_width;
+	var height = start_height;
+	
+	var start_x = Math.random()*W;
+	var end_x = Math.random()*W;
+	var start_y = Math.random()*(H-20);
+	var end_y = Math.random()*(H-20);
+	if(start_y < end_y ) {
+		var apex = Math.random()*start_y;
+	}
+	else {
+		var apex = Math.random()*end_y;
+	}
+	this.x = start_x;
+	this.y = start_y;
+	var life = 5000+(Math.random()*5000);
+	
+	var flakes = [];
+	var flake_time = 0;
+	
+	var splat_width = images.g1_ball_splat.width;
+	var splat_height = images.g1_ball_splat.height;
+	var finish_time = 0;
 	
 	this.draw = function() {
-		if(this.ground) {
-			if(grinds.length==0) {
-				grind_time = Date.now();
-				prev_level = grounds_level;
-				console.log(next_level);
+		if(this.hit) {
+			if(flakes.length==0) {
+				flake_time = Date.now();
+				prev_level = snow_level;
 				next_level ++;
 				ground_time = Date.now();
 				for(var i=0;i<20;i++) {
-					var grind = new create_grind(this.x,this.y);
-					grinds.push(grind);
+					var flake = new create_flake(this.x,this.y);
+					flakes.push(flake);
 				}
 			}
-			for(var i=0;i<grinds.length;i++) {
-				grinds[i].draw();
+			for(var i=0;i<flakes.length;i++) {
+				flakes[i].draw();
 			}
-			if(Date.now()-grind_time>2500) {
+			if(Date.now()-flake_time>2500) {
 				this.remove();
 			}
 		}
-		else {
-			ctx.drawImage(beanImg,this.x-(width/2),this.y-(height/2));
-			this.y += ((Date.now() - drawTime)/1000) * 100;
-			drawTime = Date.now();
-			if( this.y >= H+30 ) {
+		else if(this.finished) {
+			var tx = (Date.now()-finish_time)/2000;
+			if(tx>=1) {
 				this.remove();
+			}
+			else {
+				ctx.save();
+				ctx.globalAlpha = xLerp(1,0,tx);
+				ctx.drawImage(images.g1_ball_splat,this.x-(splat_width/2),this.y-(splat_height/2));
+				ctx.restore();
+			}
+		}
+		else {
+			var t = (Date.now()-create_time)/life;
+			this.x = xLerp(start_x,end_x,t);
+			this.y = xLerp(xLerp(start_y,apex,t),xLerp(apex,end_y,t),t);
+			width = xLerp(start_width,total_width,t);
+			height = xLerp(start_height,total_height,t);
+			ctx.drawImage(ball_image,this.x-(width/2),this.y-(height/2),width,height);
+			if( t >= 1 ) {
+				this.finished = true;
+				finish_time = Date.now();
 			}
 		}
 	}
 	
-	function create_grind(bean_x,bean_y){
-		var grind_x = bean_x;
-		var grind_y = bean_y;
+	function create_flake(ball_x,ball_y){
+		var flake_x = ball_x;
+		var flake_y = ball_y;
 		var dx = -1+(Math.random()*2);
 		var dy = -1+(Math.random()*2);
 	
 		this.draw = function() {
 			ctx.beginPath();
-			ctx.fillStyle = 'rgb(124,88,82)';
-			ctx.arc(grind_x, grind_y, 2.5, Math.PI*2, false);
+			ctx.fillStyle = 'rgb(255,255,255)';
+			ctx.arc(flake_x, flake_y, 2.5, Math.PI*2, false);
 			ctx.fill();
-			grind_x += dx;
-			grind_y += dy;
+			flake_x += dx;
+			flake_y += dy;
 		}
 	}
 	
 	this.remove = function() {
-		var index = beans.indexOf(this);
+		var index = balls.indexOf(this);
 		if(index != -1) {
-			beans.splice(index,1);
+			balls.splice(index,1);
 		}
 	}
 }

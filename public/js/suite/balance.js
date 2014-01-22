@@ -5,11 +5,16 @@ var balancers = [],
 	balance_start_time,
 	balance_win_time,
 	balance_begun,
-	pre_bal;
+	pre_bal,
+	wall_counter,
+	wall;
 
 var balance = function() {
 	ctx.globalCompositeOperation = "source-over";
-	ctx.drawImage(images.bg,0,0,W,H);
+	ctx.drawImage(images.g3_bg,0,0,W,H);
+	for(var i=0;i<wall.length;i++) {
+		wall[i].draw();
+	}
 	for( var id in players ) {
 		if(balancers.indexOf(id) != -1) {
 			var b = players[id].balancer;
@@ -49,6 +54,10 @@ function balance_init() {
 		b.set_values(vals.x,vals.y,vals.max);
 		counter++;
 	}
+	
+	wall_counter = 0;
+	wall = [];
+
 	game_over = false;
 	balance_winner = "";
 	balance_begun = false;
@@ -67,7 +76,7 @@ function create_balancer(col,nam,pId) {
 	var spilled = false;
 	
 	this.fill_per = 0;
-	this.cups_complete = 0;
+	this.cubes_complete = 0;
 	
 	var color = col;
 	color.a = 1;
@@ -84,11 +93,13 @@ function create_balancer(col,nam,pId) {
 	
 	this.pulse = function() {
 		if(this.fill_per >0.97 && this.fill_per<=1) {
-			this.cups_complete ++;
-			if(this.cups_complete >= 4 && !game_over) {
+			var wall_piece = new create_wall(home_x-155,home_y+40,rat*0.5*250);
+			wall.push(wall_piece);
+			this.cubes_complete ++;
+			if(this.cubes_complete >= 4 && !game_over) {
 				game_over = true;
 				balance_winner = name;
-				balance_winner_color = color;
+				balance_winner_color = color.is();
 				balance_win_time = Date.now();
 				socket.emit('game_end',id);
 			}
@@ -105,15 +116,14 @@ function create_balancer(col,nam,pId) {
 		
 		pour_angle = 0;
 		this.fill_per = 0;
-		this.cups_complete = 0;
+		this.cubes_complete = 0;
 
 	}
 	
 	this.draw = function() {
 		ctx.save();
 		ctx.transform(rat,0,0,rat,home_x,home_y);
-		fill_cup(this.fill_per);
-		ctx.drawImage(images.cup,-132,27,99,103);
+		fill_cube(this.fill_per);
 		var perc_label;
 		if(this.fill_per>1) {
 			perc_label = 'SPILL!';
@@ -140,22 +150,21 @@ function create_balancer(col,nam,pId) {
 		ctx.fillText(name,-20,130);
 		ctx.translate(35,-35);
 		if(this.fill_per>1) {
-			ctx.drawImage(images.overflow,-177,60,89,110);
 			if(!spilled && !this.is_pre) {
 				socket.emit('spill',id);
 				spilled = true;
 			}
 		}
 		ctx.rotate(pour_angle*(Math.PI/180));
-		ctx.drawImage(images.pot,-97,-94);
+		ctx.drawImage(images.g3_water_pot,-97,-94);
 		ctx.font = '60pt Calibri';
 		ctx.textAlign = 'center';
 		ctx.textBaseline = 'middle';
 		ctx.strokeStyle = 'black';
 		ctx.lineWidth = 4;
-		ctx.strokeText(this.cups_complete,-16,20);
+		ctx.strokeText(this.cubes_complete,-16,20);
 		ctx.fillStyle = color.is();
-		ctx.fillText(this.cups_complete,-16,20);
+		ctx.fillText(this.cubes_complete,-16,20);
 		ctx.restore();
 		if(balance_begun && pour_angle<0 && pour_angle>-90 ) {
 			this.fill_per += ((Date.now()-draw_time)/4000)*(pour_angle/-45);
@@ -163,33 +172,55 @@ function create_balancer(col,nam,pId) {
 		draw_time = Date.now();
 	}
 	
-	function fill_cup(perc) {
-		if(perc>1) {
-			perc=1;
-		}
+	function fill_cube(perc) {
 		ctx.save();
-		ctx.transform(.5,0,0,.5,-130,30);
-		var grd = ctx.createLinearGradient(0,175,0,0);
-		grd.addColorStop(0,"#663f17");
-		grd.addColorStop(perc,"#663f17");
-		grd.addColorStop(perc,"rgba(0,0,0,0)");
-		grd.addColorStop(1,"rgba(0,0,0,0)");
-		ctx.fillStyle = grd;
-		ctx.beginPath();
-		ctx.moveTo(2.561,9.953);
-		ctx.bezierCurveTo(-1.6799999999999997,1.4719999999999995,9.727,0.4529999999999994,18.894,0.4529999999999994);
-		ctx.lineTo(119.561,0.4529999999999994);
-		ctx.bezierCurveTo(119.561,0.4529999999999994,138.352,5.786,138.352,5.786);
-		ctx.lineTo(138.352,14.378);
-		ctx.lineTo(133.674,30.609);
-		ctx.lineTo(132.77,122.93799999999999);
-		ctx.bezierCurveTo(132.77,122.93799999999999,121.543,168.362,95.43800000000002,174.754);
-		ctx.bezierCurveTo(95.43800000000002,174.754,53.16300000000002,191.463,27.68900000000002,162.494);
-		ctx.bezierCurveTo(27.68900000000002,162.494,11.698000000000022,145.502,13.46300000000002,101.81);
-		ctx.bezierCurveTo(8.569,88.818,9.894,24.62,2.561,9.953);
-		ctx.closePath();
-		ctx.fill();
+		ctx.transform(.5,0,0,.5,-155,40);
+		if(perc>1) {
+			ctx.scale(2, 1);
+			ctx.beginPath();
+			ctx.fillStyle = 'rgba(71,199,239,1)';
+			ctx.arc(60, 62, 40, Math.PI*2, false);
+			ctx.fill();
+		}
+		else {
+			var grd = ctx.createLinearGradient(0,125,0,0);
+			grd.addColorStop(0,"rgba(71,199,239,.8)");
+			grd.addColorStop(perc,"rgba(71,199,239,.8)");
+			grd.addColorStop(perc,"rgba(0,0,0,0)");
+			grd.addColorStop(1,"rgba(0,0,0,0)");
+			ctx.fillStyle = grd;
+			ctx.fillRect(0,0,250,125);
+		}
 		ctx.restore();
+	}
+}
+
+function create_wall(start_x,start_y,start_size) {
+	var create_time = Date.now();
+	var in_place = false;
+	
+	var end_x = ((2*W)/7)+((wall_counter%6)*(W/15));
+	var end_y = ((5*H)/6)-(Math.floor(wall_counter/6)*(W/30));
+	var end_size = (W/15)-5;
+	
+	wall_counter ++;
+	
+	this.draw = function() {
+		if(in_place) {
+			ctx.fillStyle = "rgba(71,199,239,.65)";
+			ctx.fillRect(end_x,end_y,end_size,end_size/2);
+		}
+		else {
+			var t = (Date.now()-create_time)/1000;
+			var mid_x = xLerp(start_x,end_x,t);
+			var mid_y = xLerp(start_y,end_y,t);
+			var mid_size = xLerp(start_size,end_size,t);
+			ctx.fillStyle = "rgba(71,199,239,.65)";
+			ctx.fillRect(mid_x,mid_y,mid_size,mid_size/2);
+			if(t>=1) {
+				in_place=true;
+			}
+		}
 	}
 }
 
@@ -205,7 +236,7 @@ function create_pre_bal() {
 	var pre_title = 'Fill the cup to 100%!';
 	var pre_bal_array = [
 		new timed_func(1000, function(){}, function(t){}),
-		new timed_func(3000, function(){}, function(t){
+		/*new timed_func(3000, function(){}, function(t){
 			pre_pot_rot = xLerp(0,-45,t);
 			pre_hand_rot = xLerp(0,-45*(Math.PI/180),t);
 			pre_perc = xLerp(0,.5,Math.pow(t,2));
@@ -257,7 +288,7 @@ function create_pre_bal() {
 		}, function(t){}),
 		new timed_func(1000, function(){
 			pre_title = 'GO!';
-		}, function(t){}),
+		}, function(t){}),*/
 ];
 	var pre_bal_manager = new timed_manager(pre_bal_array,function(){ 
 			balance_begun=true;
@@ -265,7 +296,7 @@ function create_pre_bal() {
 		});
 	this.draw = function() {
 		pre_bal_manager.run();
-		ctx.fillStyle="rgba(255,255,255,.95)";
+		/*ctx.fillStyle="rgba(255,255,255,.95)";
 		ctx.fillRect((W/4),(H/4),W/2,H/2);
 		pre_bal.fill_per = pre_perc;
 		pre_bal.anglize(pre_pot_rot);
@@ -288,6 +319,6 @@ function create_pre_bal() {
 		ctx.lineWidth = 6;
 		ctx.strokeText(pre_title,W/2,H/4+10);
 		ctx.fillStyle = 'white';
-		ctx.fillText(pre_title,W/2,H/4+10);
+		ctx.fillText(pre_title,W/2,H/4+10);*/
 	}
 }
