@@ -6,7 +6,7 @@ var race_begun,
 	race_winner_color,
 	racers = [],
 	pre_race,
-	tap_goal = 200;
+	tap_goal = 50;
 
 var race = function() {
 	ctx.globalCompositeOperation = "source-over";

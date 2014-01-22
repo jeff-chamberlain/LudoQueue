@@ -99,8 +99,8 @@ function create_balancer(col,nam,pId) {
 	}
 	
 	this.pulse = function() {
-		if(this.fill_per >0.97 && this.fill_per<=1) {
-			var wall_piece = new create_wall(home_x-155,home_y+40,rat*0.5*250);
+		if(this.fill_per >0.90 && this.fill_per<=1) {
+			var wall_piece = new create_wall(home_x-(rat*155),home_y+(rat*40),rat*0.5*250);
 			wall.push(wall_piece);
 			this.cubes_complete ++;
 			if(this.cubes_complete >= 4 && !game_over) {
@@ -136,7 +136,7 @@ function create_balancer(col,nam,pId) {
 			perc_label = 'SPILL!';
 		}
 		else {
-			var adj_perc = this.fill_per/.97;
+			var adj_perc = this.fill_per/.90;
 			if(adj_perc > 1) {
 				adj_perc = 1;
 			}

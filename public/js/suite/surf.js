@@ -7,7 +7,7 @@ var surfers = {},
 	prev_level = 0,
 	next_level = 0,
 	snow_time,
-	snow_target = 20;
+	snow_target = 10;
 	
 var surf = function() {
 	ctx.globalCompositeOperation = "source-over";
