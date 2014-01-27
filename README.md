@@ -1,4 +1,4 @@
-LudoSuite
+LudoQueue
 =========
 
-Repo for October 12th installation
+A Node based application for developing interactive queues
