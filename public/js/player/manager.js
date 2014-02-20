@@ -1,51 +1,17 @@
-var	game,
-	game_interval,
-	game_running,
-	name,
-	email,
-	id,
-	logged_in;
-
-jQuery(document).ready( function() {
-	loadAssets(function() {
-		game = new game_maker();
-		game.init();
-		game.change_state("waiting");
-		game_interval = setInterval( play, 33 );
-	});
-});
-
-function game_maker() {
-	this.sockets = new create_sockets();
-	this.input = new create_input();
-	this.draw = new create_draw();
-	this.overlay = new create_overlay();
-	this.state = "new";
-}
-
-game_maker.prototype.init = function() {
-	this.input.init();
-	this.draw.init();
-	this.overlay.init();
-}
-
-game_maker.prototype.change_state = function(new_state) {
-	this.state = new_state;
-	this.input.change_state(new_state);
-	this.draw.change_state(new_state);
-}
-
-game_maker.prototype.play = function() {
-	this.input.play();
-	this.draw.play();
-}
-
-
-function play() {
-	game.play();
-}
-
-function signinCallback(authResult) {
+window.onload = function() { 
+	player_module = {
+		config : {
+			name : 'Player1',
+			id : null,
+			color : 'rgb(255,0,0)',
+		},
+		socket : socket(),
+		input : new input(),
+		draw : new draw(),
+		overlay : new overlay
+	}
+};
+/*function signinCallback(authResult) {
   if (authResult['status']['signed_in']) {
     // Update the app to reflect a signed in user
     // Hide the sign-in button now that the user is authorized, for example:
@@ -68,4 +34,4 @@ function signinCallback(authResult) {
     //   "immediate_failed" - Could not automatically log in the user
     console.log('Sign-in state: ' + authResult['error']);
   }
-}
+}*/

@@ -1,6 +1,6 @@
 {
-  "name": "LudoSuite",
-  "version": "0.0.0-59",
+  "name": "LudoQueue",
+  "version": "1.1.5",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -9,22 +9,22 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/LudoQueue/LudoSuite"
+    "url": "https://github.com/jcchamberlain/LudoQueue"
   },
   "dependencies": {
     "socket.io": "*",
     "express": "*",
-    "suite": "*"
+    "queue": "*"
   },
   "bundleDependencies": [
-    "suite"
+    "queue"
   ],
   "author": "Jeff Chamberlain + LudoQueue Team",
   "license": "BSD-2-Clause",
   "bugs": {
-    "url": "https://github.com/LudoQueue/LudoSuite/issues"
+    "url": "https://github.com/jcchamberlain/LudoQueue/issues"
   },
-  "subdomain": "ludosuite",
+  "subdomain": "ludoqueue",
   "engines": {
     "node": "0.10.x"
   }

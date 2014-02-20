@@ -3,15 +3,16 @@
 <head>
 <meta content="yes" name="apple-mobile-web-app-capable">
 <meta content="minimum-scale=1.0, width=device-width, maximum-scale=0.6667, user-scalable=no" name="viewport">
-<title>Player</title>
+<title>LudoQueue</title>
 <script src="/socket.io/socket.io.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
-<script type="text/javascript" src="./js/player/assets.js" charset="utf-8"></script>
 <script type="text/javascript" src="./js/player/manager.js" charset="utf-8"></script>
-<script type="text/javascript" src="./js/player/sockets.js" charset="utf-8"></script>
+<script type="text/javascript" src="./js/player/assets.js" charset="utf-8"></script>
+<script type="text/javascript" src="./js/player/socket.js" charset="utf-8"></script>
 <script type="text/javascript" src="./js/player/input.js" charset="utf-8"></script>
 <script type="text/javascript" src="./js/player/draw.js" charset="utf-8"></script>
 <script type="text/javascript" src="./js/player/overlay.js" charset="utf-8"></script>
+<script type="text/javascript" src="./js/player/utils.js" charset="utf-8"></script>
 <!--<script src="http://jsconsole.com/remote.js?3D02F244-9BC5-4C66-B0A1-9BEEE89A36C2"></script>-->
 
 <link href="./css/playerStyle.css" rel="stylesheet" type="text/css">
@@ -36,7 +37,7 @@
 			<table width="100%"><tr><td align="center">
 				<!--<h1>OR</h1>-->
 				<form id="start_form">
-					<input type="text" id="start_name" class="text" maxlength="15" placeholder="Enter your name..." /><br>
+					<input type="text" id="start_name" class="text" maxlength="7" placeholder="Enter your name..." /><br>
 					<input type="submit" id="start_submit" class="submit" value="Go" />
 				</form>
 				<span id="err_text"></span>
@@ -46,8 +47,9 @@
 	<canvas id="canvas">
 	Sorry, your browser doesn't support HTML5 canvasses. :(
 	</canvas>
-	<audio id="pAudio" src="./audio/sprite.wav"></audio>
-	<!--<audio id="bell_chime" hidden="true" preload="auto">
+	<audio id="shoot_audio" hidden="true" preload="auto" src="./audio/snowball_shoot.wav"></audio>
+	<!--<audio id="pAudio" src="./audio/sprite.wav"></audio>
+	<audio id="bell_chime" hidden="true" preload="auto">
 		<source src="./audio/bell_chime.mp3" type="audio/mpeg">
 		<source src="./audio/bell_chime.wav" type="audio/wav">
 		<source src="./audio/bell_chime.ogg" type="audio/ogg">
@@ -82,13 +84,13 @@
 		<source src="./audio/waterdripping.wav" type="audio/wav">
 		<source src="./audio/waterdripping.ogg" type="audio/ogg">
 	</audio>-->
-	 <!-- Place this asynchronous JavaScript just before your </body> tag -->
+	 <!-- Place this asynchronous JavaScript just before your </body> tag
     <script type="text/javascript">
       (function() {
        var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
        po.src = 'https://apis.google.com/js/client:plusone.js';
        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
      })();
-    </script>
+    </script> -->
 </body>
 </html>

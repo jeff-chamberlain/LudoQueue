@@ -1,74 +1,48 @@
-	var canvas,
-	ctx,
-	W,
-	H,
-	color,
-	orien;
-
-function create_draw() {
-	canvas = document.getElementById("canvas");
-	ctx = canvas.getContext("2d");
-	W = window.innerWidth;
-	H = window.innerHeight;
+function draw() {
+	var canvas = document.getElementById("canvas"),
+	ctx = canvas.getContext("2d"),
+	W = window.innerWidth,
+	H = window.innerHeight,
+	images = null,
+	tran_timeout = null;
+		
+	loadImages(function(loaded) {
+		images = loaded;
+	});
 	
 	window.addEventListener("resize", function() {
 		W = window.innerWidth;
 		H = window.innerHeight;	
 		canvas.width = W;
 		canvas.height = H;
-		if(game.overlay.menu != null) {
-			game.overlay.menu[0].style.top = H/2+'px';
-		}
-	}, false);
-	this.init = function() {
-		canvas.width = W;
-		canvas.height = H;
-		ctx.fillStyle = "rgb(255, 255, 255)";
-		ctx.fillRect(0, 0, W, H);
-	};
+		current_draw();
+	}, false);	
 	
-	this.play = function() {
-		this.state();
-	};
+	canvas.width = W;
+	canvas.height = H;
 	
-	this.temp_state = function() {};
-	
-	var new_state;
-	var tran_start;
-	
-	this.change_state = function(new_state_string) {
-		switch(new_state_string) {
-			case "waiting":
-				new_state = waiting;
-				break;
-			case "surfing":
-				new_state = surfing;
-				break;
-			case "racing":
-				new_state = racing;
-				break;
-			case "balancing":
-				new_state = balancing;
-				break;
-		}
-		if( this.state == waiting || new_state == waiting ) {
-			this.temp_state = this.state;
-			transition_time = Date.now();
-			transition_down = false;
-			transition_alph = 0;
-			this.state = transition;
-		}
-		else {
-			this.state = new_state;
-		}
-	};
-	
-	this.spinner = new create_spinner();
-	
-	this.waiting_message = 'Please sign in';
+	var spinner = new create_spinner();
 	var waiting_message_time = Date.now();
 	
 	var waiting = function() {
+		ctx.globalCompositeOperation = "source-over";
+		ctx.fillStyle = "rgb(255, 255, 255)";
+		ctx.fillRect(0, 0, W, H);
+		ctx.font = '40px Calibri';
+		ctx.textAlign = 'center';
+		ctx.textBaseline = 'top';
+		ctx.lineWidth = 4;
+		ctx.strokeStyle = 'white';
+		ctx.fillStyle = 'black';
+		wrapText('Please sign in', W/2, 50, W, 45);
+	};
+	
+	var current_draw = waiting,
+	next_draw = null,
+	tran_time = 0;
+	waiting();
+	
+	var logging_in = function() {
 		ctx.globalCompositeOperation = "source-over";
 		ctx.fillStyle = "rgba(255, 255, 255, 0.08)";
 		ctx.fillRect(0, 0, W, H);
@@ -78,136 +52,143 @@ function create_draw() {
 		ctx.lineWidth = 4;
 		ctx.strokeStyle = 'white';
 		ctx.fillStyle = 'black';
-		wrapText(this.waiting_message, W/2, 50, W, 45);
-
-		if( !over_showing ) {
-			this.spinner.draw(W/2, H/2);
+		wrapText('Attempting to connect...', W/2, 50, W, 45);
+		spinner.draw(W/2,H/2);
+		if(!tran_timeout) {
+			setTimeout(logging_in,33);
 		}
-
-	};
+	}
 	
-	var surfing = function() {
+	var standby = function() {
+		ctx.globalCompositeOperation = "source-over";
+		ctx.fillStyle = "rgba(255, 255, 255, 0.08)";
+		ctx.fillRect(0, 0, W, H);
+		ctx.font = '40px Calibri';
+		ctx.textAlign = 'center';
+		ctx.textBaseline = 'top';
+		ctx.lineWidth = 4;
+		ctx.strokeStyle = 'white';
+		ctx.fillStyle = 'black';
+		wrapText('Please wait for next game...', W/2, 50, W, 45);
+		spinner.draw(W/2,H/2);
+		if(!tran_timeout) {
+			setTimeout(standby,33);
+		}
+	}
+	
+	var gameplay = function() {
+		ctx.globalCompositeOperation = "source-over";
 		ctx.fillStyle = "rgb(255, 255, 255)";
 		ctx.fillRect(0, 0, W, H);
 		show_disp();
 	};
 	
-	var racing = function() {
-		ctx.fillStyle = "rgb(255, 255, 255)";
-		ctx.fillRect(0, 0, W, H);
-		show_disp();
+	this.change_state = function(state_string) {
+		console.log(state_string);
+		if(tran_timeout != null) {
+			clearTimeout(tran_timeout);
+		}
+		switch(state_string) {
+			case 'gameplay':
+				next_draw = gameplay;
+				break;
+			case 'login':
+				next_draw = logging_in;
+				break;
+			case 'standby':
+				next_draw = standby;
+				break;
+			default:
+				next_draw = waiting;
+				break;
+		}
+		tran_time = Date.now();
+		transition();
 	};
 	
-	var balancing = function() {
-		ctx.fillStyle = "rgb(255, 255, 255)";
-		ctx.fillRect(0, 0, W, H);
-		show_disp();
-	};
-	
-	var transition_down = false;
-	var transition_alph = 0;
-	var transition_time;
-	
-	var transition = function() {
-		if( !transition_down ) {
-			transition_alph += ( Date.now() - transition_time ) / 500;
-			this.temp_state();
-			ctx.globalCompositeOperation = "source-over";
-			ctx.fillStyle = "rgba(255, 255, 255, "+transition_alph+")";
-			ctx.fillRect(0, 0, W, H);
-			if( transition_alph >= 1 ) {
-				this.temp_state = new_state;
-				transition_alph = 1;
-				transition_down = true;
-				anim_index = 0;
-				anim_check = Date.now();
-				waiting_message_time = Date.now();
-			}
+	function transition() {
+		var t = (Date.now() - tran_time)/1500;
+// 		console.log(t);
+		ctx.globalAlpha = xLerp(0,1,t);
+		if(t >= 1) {
+			console.log('HIT');
+			clearTimeout(tran_timeout);
+			tran_timeout = null;
+			current_draw = next_draw;
 		}
 		else {
-			if( transition_alph <= 0 ) {
-				this.state = new_state;
-				transition_down = false;
-				transition_alph = 0;
+			tran_timeout = setTimeout(transition,33);
+		}
+		next_draw();
+	}
+
+	function create_spinner() {
+		var angle = Math.PI,
+			rad = 8,
+			last_time = Date.now();
+	
+		this.draw = function(X,Y) {
+			ctx.globalCompositeOperation = "darker";
+			ctx.beginPath();
+			var spin_x = X + Math.cos(angle)*rad;
+			var spin_y = Y + Math.sin(angle)*rad;
+			var gradient = ctx.createRadialGradient(spin_x, spin_y, 0, spin_x, spin_y, rad);
+			gradient.addColorStop(0, "rgb(0,83,149)");
+			gradient.addColorStop(1, "white");
+			ctx.fillStyle = gradient;
+			ctx.arc(spin_x, spin_y, rad, Math.PI*2, false);
+			ctx.fill();
+			ctx.closePath();
+			if( Date.now() - last_time < 500 ) {
+				angle += ( ( Date.now() - last_time ) / 500 ) * Math.PI;
+				if( angle > Math.PI*2 ) {
+					angle -= Math.PI*2;
+				}
+			}
+			last_time = Date.now();
+		};
+	}
+	
+	function show_disp() {
+		if(images) {
+			if( H > W ) {
+				var logo_hig = W*(images.dw_logo.height/images.dw_logo.width);
+				ctx.drawImage(images.dw_logo,0,(H/2)-(logo_hig/2),W,logo_hig);
 			}
 			else {
-				transition_alph -= ( Date.now() - transition_time ) / 500;
-				this.temp_state();
-				ctx.globalCompositeOperation = "source-over";
-				ctx.fillStyle = "rgba(255, 255, 255, "+transition_alph+")";
-				ctx.fillRect(0, 0, W, H);
+				var logo_wid = H*(images.dw_logo.width/images.dw_logo.height);
+				ctx.drawImage(images.dw_logo,(W/2)-(logo_wid/2),0,logo_wid,H);
 			}
 		}
-		transition_time = Date.now();
-	};
-	
-	this.state = function(){};
-}
+		ctx.font = '40px Calibri';
+		ctx.textAlign = 'center';
+		ctx.textBaseline = 'center';
+		ctx.lineWidth = 4;
+		ctx.strokeStyle = 'black';
+		ctx.strokeText(player_module.config.name,W/2,H/2);
+		ctx.fillStyle = player_module.config.color;
+		ctx.fillText(player_module.config.name,W/2,H/2);
+	}
 
-function create_spinner() {
-	this.angle = Math.PI;
-	this.rad = 8;
-	this.last_time = Date.now();
-	
-	this.draw = function(X,Y) {
-		ctx.globalCompositeOperation = "darker";
-		ctx.beginPath();
-		var spin_x = X + Math.cos(this.angle)*this.rad;
-		var spin_y = Y + Math.sin(this.angle)*this.rad;
-		var gradient = ctx.createRadialGradient(spin_x, spin_y, 0, spin_x, spin_y, this.rad);
-		gradient.addColorStop(0, "rgb(0,83,149)");
-		gradient.addColorStop(1, "white");
-		ctx.fillStyle = gradient;
-		ctx.arc(spin_x, spin_y, this.rad, Math.PI*2, false);
-		ctx.fill();
-		ctx.closePath();
-		if( Date.now() - this.last_time < 500 ) {
-			this.angle += ( ( Date.now() - this.last_time ) / 500 ) * Math.PI;
-			if( this.angle > Math.PI*2 ) {
-				this.angle -= Math.PI*2;
+	function wrapText(text, x, y, maxWidth, lineHeight) {
+		var words = text.split(' ');
+		var line = '';
+
+		for(var n = 0; n < words.length; n++) {
+			var testLine = line + words[n] + ' ';
+			var metrics = ctx.measureText(testLine);
+			var testWidth = metrics.width;
+			if (testWidth > maxWidth && n > 0) {
+				ctx.strokeText(line, x, y);
+				ctx.fillText(line, x, y);
+				line = words[n] + ' ';
+				y += lineHeight;
+			}
+			else {
+				line = testLine;
 			}
 		}
-		this.last_time = Date.now();
-	};
-}
-function show_disp() {
-	if( H > W ) {
-		var logo_hig = W*(images.dw_logo.height/images.dw_logo.width);
-		ctx.drawImage(images.dw_logo,0,(H/2)-(logo_hig/2),W,logo_hig);
+		ctx.strokeText(line, x, y);
+		ctx.fillText(line, x, y);
 	}
-	else {
-		var logo_wid = H*(images.dw_logo.width/images.dw_logo.height);
-		ctx.drawImage(images.dw_logo,(W/2)-(logo_wid/2),0,logo_wid,H);
-	}
-	ctx.font = '40px Calibri';
-	ctx.textAlign = 'center';
-	ctx.textBaseline = 'top';
-	ctx.lineWidth = 4;
-	ctx.strokeStyle = 'black';
-	ctx.strokeText(name,W/2,20);
-	ctx.fillStyle = color;
-	ctx.fillText(name,W/2,20);
-	//wrapText("Turn your volume up!",W/2,0,W,45);
-}
-
-function wrapText(text, x, y, maxWidth, lineHeight) {
-	var words = text.split(' ');
-	var line = '';
-
-	for(var n = 0; n < words.length; n++) {
-		var testLine = line + words[n] + ' ';
-		var metrics = ctx.measureText(testLine);
-		var testWidth = metrics.width;
-		if (testWidth > maxWidth && n > 0) {
-			ctx.strokeText(line, x, y);
-			ctx.fillText(line, x, y);
-			line = words[n] + ' ';
-			y += lineHeight;
-		}
-		else {
-			line = testLine;
-		}
-	}
-	ctx.strokeText(line, x, y);
-	ctx.fillText(line, x, y);
 }
