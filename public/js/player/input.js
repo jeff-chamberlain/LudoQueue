@@ -107,7 +107,6 @@ function input() {
 						rhythm_hits = [];
 						if(rhythm_index + 1 < rhythm_intervals.length) {
 							while(rhythm_received + rhythm_intervals[rhythm_index + 1] < Date.now()) {
-								console.log('Shifting index');
 								rhythm_index ++;
 								rhythm_received += rhythm_intervals[rhythm_index];
 							}
@@ -172,7 +171,7 @@ function input() {
 				}
 				if(!rhythm_tried) {
 					console.log('MISS ' + rhythm_index);
-					player_module.socket.emit('rhythm', 200);
+					player_module.socket.emit('rhythm', 100);
 				}
 				rhythm_tried = false;
 				rhythm_targets.current = rhythm_targets.next;
@@ -221,7 +220,7 @@ function input() {
 	function tryRhythmCalibrate() {
 		var calib_intervals = [];
 		var test_num = rhythm_hits.length-1;
-		console.log('Starting calibration at ' + rhythm_index);
+// 		console.log('Starting calibration at ' + rhythm_index);
 		for( var i=0; i<test_num; i++ ) {
 			calib_intervals[i] = rhythm_hits[i+1]-rhythm_hits[i];	
 		}
@@ -235,15 +234,15 @@ function input() {
 				if(test_interval >= j) {
 					test_interval -= j;
 				}
-				console.log('Testing ' + rhythm_intervals[test_interval] + ' Calibrating ' + calib_intervals[k]);
+// 				console.log('Testing ' + rhythm_intervals[test_interval] + ' Calibrating ' + calib_intervals[k]);
 				var d = rhythm_intervals[test_interval] - calib_intervals[k];
 				ave_diff += Math.abs(d);
 				offset += d;
 				diffs[k] = d;
 			}
 			ave_diff /= test_num;
-			console.log('Average difference' + ave_diff);
-			if(ave_diff < 100) {
+// 			console.log('Average difference' + ave_diff);
+			if(ave_diff < 50) {
 				var current_index = i + test_num;
 				if(current_index >= rhythm_intervals.length) {
 					current_index -= rhythm_intervals.length;
