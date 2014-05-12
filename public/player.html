@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+<head>
+<meta content="yes" name="apple-mobile-web-app-capable">
+<meta content="minimum-scale=1.0, width=device-width, maximum-scale=0.6667, user-scalable=no" name="viewport">
+<title>LudoQueue</title>
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+<script type="text/javascript" src="./js/player/assets.js" charset="utf-8"></script>
+<script type="text/javascript" src="./js/player/socket.js" charset="utf-8"></script>
+<script type="text/javascript" src="./js/player/input.js" charset="utf-8"></script>
+<script type="text/javascript" src="./js/player/draw.js" charset="utf-8"></script>
+<script type="text/javascript" src="./js/player/overlay.js" charset="utf-8"></script>
+<script type="text/javascript" src="./js/player/utils.js" charset="utf-8"></script>
+<script type="text/javascript" src="./js/player/manager.js" charset="utf-8"></script>
+<!--<script src="http://jsconsole.com/remote.js?3D02F244-9BC5-4C66-B0A1-9BEEE89A36C2"></script>-->
+
+<link href="./css/playerStyle.css" rel="stylesheet" type="text/css">
+
+</head>
+<body>
+	<div id="touch_area"></div>
+	<div class="elements" id="overlay" style="display:none;">
+		<div id="start_over" class="over">
+			<!--<span id="signinButton">
+				  <span
+					class="g-signin"
+					data-callback="signinCallback"
+					data-clientid="664721512932-r470fsdpbfgufpfq773os97jtfih4rc2.apps.googleusercontent.com"
+					data-cookiepolicy="single_host_origin"
+					data-requestvisibleactions="http://schemas.google.com/AddActivity"
+					data-scope="https://www.googleapis.com/auth/plus.profile.emails.read"
+					data-scope="https://www.googleapis.com/auth/plus.login">
+				  </span>
+				</span>-->
+			
+			<table width="100%"><tr><td align="center">
+				<!--<h1>OR</h1>-->
+				<form id="start_form">
+					<input type="text" id="start_name" class="text" maxlength="7" placeholder="Enter your name..." /><br>
+					<input type="submit" id="start_submit" class="submit" value="Go" />
+				</form>
+				<span id="err_text"></span>
+			</td></tr></table>
+		</div>
+	</div>
+	<canvas id="canvas">
+	Sorry, your browser doesn't support HTML5 canvasses. :(
+	</canvas>
+</body>
+</html>

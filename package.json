@@ -1,0 +1,33 @@
+{
+  "name": "LudoQueue",
+  "version": "2.2.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jcchamberlain/LudoQueue"
+  },
+  "dependencies": {
+    "socket.io": "*",
+    "express": "*",
+    "queue": "*",
+    "serve-static": "*",
+    "morgan": "*"
+  },
+  "bundleDependencies": [
+    "queue"
+  ],
+  "author": "Jeff Chamberlain + LudoQueue Team",
+  "license": "BSD-2-Clause",
+  "bugs": {
+    "url": "https://github.com/jcchamberlain/LudoQueue/issues"
+  },
+  "subdomain": "ludoqueue",
+  "engines": {
+    "node": "0.10.x"
+  }
+}
