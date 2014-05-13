@@ -309,7 +309,7 @@ function aquarium() {
 					screen_time = null;
 				}
 				else {
-					var t = (Date.now()-screen_time) / 3000;
+					var t = (Date.now()-screen_time) / 1500;
 					if(t >= 1) {
 						queue_module.socket.emit('change_screen', {id: p.id});
 						queue_module.screen_count --;

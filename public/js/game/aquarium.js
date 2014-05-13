@@ -394,7 +394,7 @@ function aquarium() {
 					next_screen = 0;
 				}
 				else {
-					var t = (Date.now()-screen_time) / 3000;
+					var t = (Date.now()-screen_time) / 1500;
 					if(t >= 1) {
 						queue_module.screen_count --;
 						p.screen = next_screen;

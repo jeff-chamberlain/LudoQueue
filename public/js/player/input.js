@@ -171,7 +171,12 @@ function input() {
 				}
 				if(!rhythm_tried) {
 					console.log('MISS ' + rhythm_index);
-					player_module.socket.emit('rhythm', 100);
+					rhythm_hits.push(200);
+					if(rhythm_hits.length > 10 ) {
+						rhythm_hits.splice(0,1);
+					}
+					var ave = averageRhythm();
+					player_module.socket.emit('rhythm', ave);
 				}
 				rhythm_tried = false;
 				rhythm_targets.current = rhythm_targets.next;
@@ -242,7 +247,7 @@ function input() {
 			}
 			ave_diff /= test_num;
 // 			console.log('Average difference' + ave_diff);
-			if(ave_diff < 50) {
+			if(ave_diff < 100) {
 				var current_index = i + test_num;
 				if(current_index >= rhythm_intervals.length) {
 					current_index -= rhythm_intervals.length;

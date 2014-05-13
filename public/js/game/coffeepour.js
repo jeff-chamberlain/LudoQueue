@@ -31,7 +31,6 @@ function coffeepour() {
 		queue_module.socket.emit('new_input_state', queue_module.input_state);
 		
 		managePlayers();
-		queue_module.socket.emit('leaderboard',leaderboard);
 	}
 	
 	var gameplay = function() {
@@ -264,6 +263,7 @@ function coffeepour() {
 			if(t >= 1) {
 				ctx.globalAlpha = 1;
 				game.play = instruc.draw;
+				queue_module.socket.emit('leaderboard',leaderboard);
 			}
 			else {
 				ctx.globalAlpha = a;

@@ -93,29 +93,30 @@ function taprhythm() {
 		ctx.closePath();
 		eyeFlash.draw();
 		ctx.restore();
-		if(leader) {
-			leaderboard[leader].time += Date.now()-loopTime;
-		}
-		if( queue_module.player_count !== game_players.length ) {
-			managePlayers();
-		}
-		for(var i=game_players.length-1; i>=0; i--) {
-			var id = game_players[i];
-			if(queue_module.players.hasOwnProperty(id)) {
-				var p = queue_module.players[id];
-				leaderboard[id].ave = p.rhythm;
+		if(!game_over) {
+			if(leader) {
+				leaderboard[leader].time += Date.now()-loopTime;
 			}
-			else {
-				game_players.splice(i,1);
-				if(leaderboard.hasOwnProperty(id)) {
-					delete leaderboard[id];
+			if( queue_module.player_count !== game_players.length ) {
+				managePlayers();
+			}
+			for(var i=game_players.length-1; i>=0; i--) {
+				var id = game_players[i];
+				if(queue_module.players.hasOwnProperty(id)) {
+					var p = queue_module.players[id];
+					leaderboard[id].ave = p.rhythm;
 				}
-				if(leader = id) {
-					leader = null;
+				else {
+					game_players.splice(i,1);
+					if(leaderboard.hasOwnProperty(id)) {
+						delete leaderboard[id];
+					}
+					if(leader = id) {
+						leader = null;
+					}
 				}
 			}
 		}
-		
 		showScores();
 		loopTime = Date.now();
 		ctx.restore();
@@ -123,11 +124,9 @@ function taprhythm() {
 	
 	
 	function managePlayers() {
-		var changed = false;
 		for( var id in queue_module.players ) {
 			var p = queue_module.players[id];
 			if(game_players.indexOf(id) < 0 ) {
-				changed = true;
 				console.log('Adding new player ' + id );
 				game_players.push(id);
 				var new_rhythm = {
@@ -183,14 +182,15 @@ function taprhythm() {
 	
 	var scoreSort = function(a,b) {
 		if(isNaN(a.value) || isNaN(b.value)) {
+			console.log('NAN');
 			if(isNaN(a.value) && isNaN(b.value)) {
 				return 0;
 			}
 			else if(isNaN(a.value)) {
-				return -1;
+				return 1;
 			}
 			else {
-				return 0;
+				return -1;
 			}
 		}
 		else {

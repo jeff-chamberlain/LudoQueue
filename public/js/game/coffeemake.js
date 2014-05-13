@@ -32,7 +32,6 @@ function coffeemake() {
 		queue_module.socket.emit('new_input_state', queue_module.input_state);
 		
 		managePlayers();
-		queue_module.socket.emit('leaderboard',leaderboard);
 	}
 	
 	var gameplay = function() {
@@ -157,6 +156,7 @@ function coffeemake() {
 							winner.name = name;
 							winner.color = color;
 							game.endGame();
+							leaderboard[id].score = 100;
 							queue_module.socket.emit('leaderboard',leaderboard);
 						}
 						tap_count = tap_goal;
@@ -228,6 +228,7 @@ function coffeemake() {
 			if(t >= 1) {
 				ctx.globalAlpha = 1;
 				game.play = instruc.draw;
+				queue_module.socket.emit('leaderboard',leaderboard);
 			}
 			else {
 				ctx.globalAlpha = a;
